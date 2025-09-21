@@ -8,7 +8,7 @@ export const FinalCTASection: React.FC = () => {
     const router = useRouter();
 
     const handleCTAClick = () => {
-        document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+        window.location.href = '/onboarding';
     };
 
     return (

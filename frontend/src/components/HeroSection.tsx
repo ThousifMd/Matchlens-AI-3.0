@@ -11,7 +11,7 @@ interface HeroSectionProps {
 export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
   const handleCTA = () => {
     trackCTAClick("Make Me A Match Magnet", "Hero Section");
-    document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+    window.location.href = '/onboarding';
   };
 
   return (

@@ -7,8 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Shield } from "lucide-react";
 import { usePackage, Package } from "@/contexts/PackageContext";
 import { trackAddToCart, trackCTAClick } from "@/lib/metaPixel";
-import { useUser } from '@clerk/nextjs';
 import AuthModal from "./AuthModal";
+
 
 const pricingTiers = [
   {
@@ -75,7 +75,9 @@ export const PricingSection = () => {
   const [localSelectedPackage, setLocalSelectedPackage] = React.useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingPackageId, setPendingPackageId] = useState<string | null>(null);
-  const { isSignedIn, isLoaded } = useUser();
+  // No authentication needed - direct to checkout
+  const isSignedIn = false;
+  const isLoaded = true;
 
   const handlePackageSelect = (packageId: string) => {
     setLocalSelectedPackage(packageId);

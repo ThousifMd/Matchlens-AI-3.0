@@ -8,7 +8,6 @@ import { StatsSection } from "@/components/StatsSection";
 import { FAQSection } from "@/components/FAQSection";
 import { FinalCTASection } from "@/components/FinalCTASection";
 import { SimpleProcessSection } from "@/components/SimpleProcessSection";
-import { PricingSection } from "@/components/PricingSection";
 import CompaniesSection from "@/components/CompaniesSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
@@ -47,10 +46,6 @@ export default function HomePage() {
         {/* Dating Platforms Section */}
         <DatingPlatformsSection />
 
-        {/* Pricing Section */}
-        <div id="pricing-section">
-          <PricingSection />
-        </div>
 
         {/* Testimonials Section */}
         <TestimonialsSection />
@@ -73,7 +68,7 @@ export default function HomePage() {
 
       {/* Mobile Sticky CTA */}
       <MobileStickyCTA
-        href="#pricing-section"
+        href="/onboarding"
         customersCount={2847}
       />
     </div>

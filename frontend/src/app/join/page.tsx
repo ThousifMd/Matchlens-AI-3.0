@@ -73,7 +73,7 @@ export default function JoinPage() {
 
             {/* Mobile Sticky CTA */}
             <MobileStickyCTA
-                href="#pricing-section"
+                href="/onboarding"
                 customersCount={2847}
             />
         </div>

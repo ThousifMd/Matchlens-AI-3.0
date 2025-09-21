@@ -13,7 +13,6 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, User, Users, Dumbbell, Plane, UtensilsCrossed, Camera, Music, BookOpen, Gamepad2, Heart, Coffee, Mountain, Upload, X, Check, Smartphone, FileText, TrendingUp, Mail, Phone, Clock } from "lucide-react";
 import { trackInitiateCheckout, trackCompleteRegistration, trackFormStep } from "@/lib/metaPixel";
 import { completeOnboardingFlow } from "@/lib/supabaseUtils";
-// import { UserButton } from '@clerk/nextjs'; // Temporarily disabled to debug white screen
 
 interface OnboardingData {
   name: string;
@@ -179,13 +178,8 @@ function OnboardingContent() {
     // Only run on client side
     if (typeof window === 'undefined') return;
 
-    // Check if user has completed payment
-    const paymentId = localStorage.getItem('lastPaymentId');
-    if (!paymentId) {
-      console.log('No payment_id found, redirecting to pricing page');
-      router.push('/pricing');
-      return;
-    }
+    // In the new flow, users come to onboarding first, then go to pricing
+    // No need to check for payment here anymore
 
     // Check if we're coming from checkout (step=5 parameter)
     const stepParam = searchParams.get('step');
@@ -319,7 +313,7 @@ function OnboardingContent() {
       trackCompleteRegistration({
         name: formData.name,
         age: formData.age,
-        dating_goal: formData.datingGoal,
+        dating_goals: formData.datingGoal,
         photo_count: formData.photos.length,
         screenshot_count: formData.screenshots.length,
         vibe: formData.vibe,
@@ -329,34 +323,22 @@ function OnboardingContent() {
 
       // Submit form data and images to Supabase
       try {
-        // Get payment_id from localStorage (stored during payment)
-        const paymentId = typeof window !== 'undefined' ? localStorage.getItem('lastPaymentId') : null;
-        if (!paymentId) {
-          console.error('❌ No payment_id found in localStorage');
-          alert('Payment information not found. Please complete payment first.');
-          // Redirect to pricing page to start the flow
-          router.push('/pricing');
-          return;
-        }
+        // In the new flow, we don't need payment_id for onboarding completion
+        // Users will complete payment after selecting a pricing option
 
         const onboardingData = {
-          payment_id: paymentId,
           name: formData.name,
-          age: formData.age,
-          dating_goal: formData.datingGoal,
-          current_matches: formData.currentMatches,
-          body_type: formData.bodyType,
-          style_preference: formData.stylePreference,
-          ethnicity: formData.ethnicity,
-          interests: formData.interests.join(', '), // Convert array to string
-          current_bio: formData.currentBio,
+          age: parseInt(formData.age),
           email: formData.email,
           phone: formData.phone,
-          photo_count: formData.photos.length,
-          screenshot_count: formData.screenshots.length,
-          vibe: formData.vibe,
-          want_more: formData.wantMore,
-          one_liner: formData.oneLiner
+          location: formData.currentMatches || '', // Using currentMatches as location for now
+          dating_goals: formData.datingGoal,
+          current_dating_apps: [formData.stylePreference || ''], // Convert to array
+          bio: formData.currentBio,
+          interests: formData.interests, // Keep as array
+          photos: [], // Will be populated with uploaded URLs
+          bio_screenshots: [], // Will be populated with uploaded URLs
+          additional_info: `Vibe: ${formData.vibe}, Want More: ${formData.wantMore}, One Liner: ${formData.oneLiner}`
         };
 
         console.log("🚀 Starting complete onboarding flow with Supabase:", onboardingData);
@@ -376,16 +358,18 @@ function OnboardingContent() {
           return;
         }
 
-        console.log("✅ Onboarding flow completed successfully with ID:", result.onboardingId);
+        console.log("✅ Onboarding flow completed successfully with ID:", result.customerId);
 
-        // Clear payment verification flag after successful submission
+        // Store onboarding data and customer_id for later use
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('paymentCompleted');
-          localStorage.removeItem('lastPaymentId'); // Also clear the payment ID
+          localStorage.setItem('onboardingFormData', JSON.stringify({
+            ...formData,
+            customer_id: result.customerId
+          }));
         }
 
-        // Redirect to success page after form completion
-        router.push('/onboarding/success');
+        // Redirect to pricing page after form completion
+        router.push('/pricing');
       } catch (error) {
         console.error('Error submitting form data:', error);
         alert('Failed to submit form data. Please try again.');
@@ -646,22 +630,6 @@ function OnboardingContent() {
               <span className="text-xs font-medium text-white whitespace-nowrap">
                 Step {currentStep} of {totalSteps}
               </span>
-              {/* UserButton temporarily disabled to debug white screen */}
-              {/* <UserButton 
-                appearance={{
-                  elements: {
-                    userButtonPopoverCard: 'bg-[#1a1a1a] border border-[#374151] shadow-2xl',
-                    userButtonPopoverActionButton: 'text-white hover:bg-[#374151]',
-                    userButtonPopoverActionButtonText: 'text-white',
-                    userButtonPopoverFooter: 'display: none !important',
-                    userButtonPopoverFooterText: 'display: none !important',
-                    userButtonPopoverFooterAction: 'display: none !important',
-                    userButtonPopoverFooterActionLink: 'display: none !important',
-                    userButtonPopoverFooterActionText: 'display: none !important',
-                    userButtonPopoverFooterActionIcon: 'display: none !important',
-                  }
-                }}
-              /> */}
               {currentStep === 4 && (
                 <Button
                   variant="ghost"

@@ -21,7 +21,6 @@ import {
 import Link from "next/link";
 import { usePackage } from "@/contexts/PackageContext";
 import SimplePayPalCheckout from "@/components/SimplePayPalCheckout";
-import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
 
 // Dodo Payment Configuration
 const DODO_PAYMENT_URL = process.env.NEXT_PUBLIC_DODO_PAYMENT_URL || "https://api.dodo.com/payments";
@@ -293,10 +292,41 @@ function CheckoutContent() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [onboardingFormData, setOnboardingFormData] = useState<any>(null);
+  const [countdown, setCountdown] = useState(24 * 60 * 60); // 24 hours in seconds
 
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
+  };
+
+  // Countdown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (showSuccessPopup && countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [showSuccessPopup, countdown]);
+
+  // Format countdown to HH:MM:SS
+  const formatCountdown = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Load onboarding form data from localStorage
@@ -341,19 +371,12 @@ function CheckoutContent() {
     // IMMEDIATELY trigger confetti animation and popup
     setShowConfetti(true);
     setShowSuccessPopup(true);
+    setCountdown(24 * 60 * 60); // Reset countdown to 24 hours
 
     console.log('🎊 Confetti and popup should be showing now!');
 
     // Hide confetti after 3 seconds
     setTimeout(() => setShowConfetti(false), 3000);
-
-    // Hide success popup after 5 seconds
-    setTimeout(() => setShowSuccessPopup(false), 5000);
-
-    // Redirect to onboarding page after 5 seconds
-    setTimeout(() => {
-      router.push('/onboarding');
-    }, 5000);
   };
 
   if (!selectedPackage) {
@@ -421,22 +444,31 @@ function CheckoutContent() {
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-12 w-12 text-green-400" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Payment Successful!</h2>
-              <p className="text-gray-300">Your enhanced photos will be ready soon</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Your transformation has begun!</h2>
+              <p className="text-gray-300 mb-4">Your enhanced photos will be ready in:</p>
             </div>
 
-
+            {/* 24-Hour Countdown */}
+            <div className="mb-6">
+              <div className="bg-[#d4ae36]/20 border border-[#d4ae36]/30 rounded-xl p-4 mb-4">
+                <div className="text-3xl font-bold text-[#d4ae36] mb-2">{formatCountdown(countdown)}</div>
+                <div className="text-sm text-gray-300">Hours : Minutes : Seconds</div>
+              </div>
+              <p className="text-sm text-gray-400">
+                We'll send you an email notification as soon as your photos are ready!
+              </p>
+            </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3">
               <Button
                 onClick={() => {
                   setShowSuccessPopup(false);
-                  router.push('/onboarding');
+                  router.push('/');
                 }}
                 className="flex-1 bg-[#d4ae36] hover:bg-[#c19d2f] text-black font-semibold"
               >
-                Continue to Questionnaire
+                Return Home
               </Button>
               <Button
                 variant="outline"
@@ -463,16 +495,6 @@ function CheckoutContent() {
             Back to Pricing
           </Button>
 
-          {/* User Profile Avatar */}
-          <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-10 h-10"
-                }
-              }}
-            />
-          </SignedIn>
         </div>
 
         {/* First Impression Header */}

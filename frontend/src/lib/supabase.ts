@@ -9,68 +9,63 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-    return supabaseUrl !== 'https://placeholder.supabase.co' &&
+    const isConfigured = supabaseUrl !== 'https://placeholder.supabase.co' &&
         supabaseAnonKey !== 'placeholder-key' &&
         supabaseUrl !== 'YOUR_SUPABASE_URL' &&
         supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY'
+
+    console.log('🔍 Supabase Configuration Check:', {
+        supabaseUrl,
+        hasAnonKey: !!supabaseAnonKey,
+        isConfigured
+    });
+
+    return isConfigured
 }
 
 // Database table names
 export const TABLES = {
     PAYMENTS: 'payments',
-    ONBOARDING: 'onboarding',
-    IMAGES: 'images'
+    ONBOARDING: 'onboarding'
 } as const
 
 // Storage bucket names
 export const STORAGE_BUCKETS = {
-    PROFILE_PHOTOS: 'profile-photos',
-    SCREENSHOTS: 'screenshots'
+    PHOTOS: 'profile-photos',
+    BIO_SCREENSHOTS: 'screenshots'
 } as const
 
 // Types for our data
 export interface PaymentData {
     payment_id?: string
-    order_id: string
+    customer_id: string
+    paypal_order_id: string
+    paypal_transaction_id?: string
     amount: number
     currency: string
-    package_id: string
-    package_name: string
-    customer_email: string
-    customer_name: string
+    pricing_option: string
     status: string
+    payment_method: string
+    payer_email?: string
+    payer_name?: string
     created_at?: string
+    updated_at?: string
 }
 
 export interface OnboardingData {
-    id?: string
-    payment_id: string
+    customer_id?: string
     name: string
-    age: string
-    dating_goal: string
-    current_matches: string
-    body_type: string
-    style_preference: string
-    ethnicity: string
-    interests: string
-    current_bio: string
+    age: number
     email: string
     phone: string
-    vibe: string
-    want_more: string
-    one_liner: string
-    photo_count: number
-    screenshot_count: number
+    location: string
+    dating_goals: string
+    current_dating_apps: string[]
+    bio: string
+    interests: string[]
+    photos: string[]
+    bio_screenshots: string[]
+    additional_info?: string
     created_at?: string
-}
-
-export interface ImageData {
-    id?: string
-    payment_id: string
-    file_name: string
-    file_path: string
-    file_size: number
-    file_type: string
-    image_type: 'profile_photo' | 'screenshot'
-    created_at?: string
+    updated_at?: string
 }

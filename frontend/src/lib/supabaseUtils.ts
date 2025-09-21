@@ -1,4 +1,4 @@
-import { supabase, TABLES, STORAGE_BUCKETS, isSupabaseConfigured, type PaymentData, type OnboardingData, type ImageData } from './supabase'
+import { supabase, TABLES, STORAGE_BUCKETS, isSupabaseConfigured, type PaymentData, type OnboardingData } from './supabase'
 
 /**
  * Upload a file to Supabase Storage
@@ -69,7 +69,7 @@ export async function uploadFiles(
 /**
  * Store payment data in Supabase
  */
-export async function storePaymentData(paymentData: Omit<PaymentData, 'payment_id' | 'created_at'>): Promise<{ success: boolean; data?: PaymentData; error?: string }> {
+export async function storePaymentData(paymentData: Omit<PaymentData, 'payment_id' | 'created_at' | 'updated_at'>): Promise<{ success: boolean; data?: PaymentData; error?: string }> {
     try {
         // Check if Supabase is configured
         if (!isSupabaseConfigured()) {
@@ -103,7 +103,7 @@ export async function storePaymentData(paymentData: Omit<PaymentData, 'payment_i
 /**
  * Store onboarding data in Supabase
  */
-export async function storeOnboardingData(onboardingData: Omit<OnboardingData, 'id' | 'created_at'>): Promise<{ success: boolean; data?: OnboardingData; error?: string }> {
+export async function storeOnboardingData(onboardingData: Omit<OnboardingData, 'customer_id' | 'created_at' | 'updated_at'>): Promise<{ success: boolean; data?: OnboardingData; error?: string }> {
     try {
         console.log('📝 Storing onboarding data:', onboardingData)
 
@@ -126,40 +126,15 @@ export async function storeOnboardingData(onboardingData: Omit<OnboardingData, '
     }
 }
 
-/**
- * Store image metadata in Supabase
- */
-export async function storeImageData(imageData: Omit<ImageData, 'id' | 'created_at'>): Promise<{ success: boolean; data?: ImageData; error?: string }> {
-    try {
-        console.log('🖼️ Storing image metadata:', imageData)
-
-        const { data, error } = await supabase
-            .from(TABLES.IMAGES)
-            .insert([imageData])
-            .select()
-            .single()
-
-        if (error) {
-            console.error('❌ Image metadata storage error:', error)
-            return { success: false, error: error.message }
-        }
-
-        console.log('✅ Image metadata stored successfully:', data)
-        return { success: true, data }
-    } catch (error) {
-        console.error('❌ Image metadata storage exception:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-    }
-}
 
 /**
  * Complete onboarding flow: store data + upload images
  */
 export async function completeOnboardingFlow(
-    onboardingData: Omit<OnboardingData, 'id' | 'created_at'>,
+    onboardingData: Omit<OnboardingData, 'customer_id' | 'created_at' | 'updated_at'>,
     profilePhotos: File[],
     screenshots: File[]
-): Promise<{ success: boolean; onboardingId?: string; error?: string }> {
+): Promise<{ success: boolean; customerId?: string; error?: string }> {
     try {
         console.log('🚀 Starting complete onboarding flow...')
 
@@ -172,85 +147,62 @@ export async function completeOnboardingFlow(
             localStorage.setItem('lastOnboardingData', JSON.stringify(onboardingData))
             localStorage.setItem('lastProfilePhotos', JSON.stringify(profilePhotos.map(f => ({ name: f.name, size: f.size, type: f.type }))))
             localStorage.setItem('lastScreenshots', JSON.stringify(screenshots.map(f => ({ name: f.name, size: f.size, type: f.type }))))
-            return { success: true, onboardingId: 'local-' + Date.now() }
+            return { success: true, customerId: 'local-' + Date.now() }
         }
 
-        // Step 1: Store onboarding data
-        const onboardingResult = await storeOnboardingData(onboardingData)
-        if (!onboardingResult.success || !onboardingResult.data) {
-            return { success: false, error: onboardingResult.error || 'Failed to store onboarding data' }
-        }
-
-        const onboardingId = onboardingResult.data.id!
-        const paymentId = onboardingResult.data.payment_id!
-        console.log('✅ Onboarding data stored with ID:', onboardingId, 'and payment_id:', paymentId)
-
-        // Step 2: Upload profile photos
+        // Step 1: Upload profile photos
+        let photoUrls: string[] = []
         if (profilePhotos.length > 0) {
             console.log('📸 Uploading profile photos...')
             const profilePhotosResult = await uploadFiles(
                 profilePhotos,
-                STORAGE_BUCKETS.PROFILE_PHOTOS,
-                `payment-${paymentId}`
+                STORAGE_BUCKETS.PHOTOS,
+                `customer-${Date.now()}`
             )
 
             if (profilePhotosResult.success && profilePhotosResult.urls) {
-                // Store image metadata for profile photos
-                for (let i = 0; i < profilePhotos.length; i++) {
-                    const file = profilePhotos[i]
-                    const url = profilePhotosResult.urls[i]
-
-                    if (url) {
-                        await storeImageData({
-                            payment_id: paymentId,
-                            file_name: file.name,
-                            file_path: url,
-                            file_size: file.size,
-                            file_type: file.type,
-                            image_type: 'profile_photo'
-                        })
-                    }
-                }
-                console.log('✅ Profile photos uploaded and metadata stored')
+                photoUrls = profilePhotosResult.urls
+                console.log('✅ Profile photos uploaded:', photoUrls.length)
             } else {
                 console.warn('⚠️ Profile photos upload failed:', profilePhotosResult.errors)
             }
         }
 
-        // Step 3: Upload screenshots
+        // Step 2: Upload screenshots
+        let screenshotUrls: string[] = []
         if (screenshots.length > 0) {
             console.log('📱 Uploading screenshots...')
             const screenshotsResult = await uploadFiles(
                 screenshots,
-                STORAGE_BUCKETS.SCREENSHOTS,
-                `payment-${paymentId}`
+                STORAGE_BUCKETS.BIO_SCREENSHOTS,
+                `customer-${Date.now()}`
             )
 
             if (screenshotsResult.success && screenshotsResult.urls) {
-                // Store image metadata for screenshots
-                for (let i = 0; i < screenshots.length; i++) {
-                    const file = screenshots[i]
-                    const url = screenshotsResult.urls[i]
-
-                    if (url) {
-                        await storeImageData({
-                            payment_id: paymentId,
-                            file_name: file.name,
-                            file_path: url,
-                            file_size: file.size,
-                            file_type: file.type,
-                            image_type: 'screenshot'
-                        })
-                    }
-                }
-                console.log('✅ Screenshots uploaded and metadata stored')
+                screenshotUrls = screenshotsResult.urls
+                console.log('✅ Screenshots uploaded:', screenshotUrls.length)
             } else {
                 console.warn('⚠️ Screenshots upload failed:', screenshotsResult.errors)
             }
         }
 
+        // Step 3: Store onboarding data with image URLs
+        const onboardingDataWithImages = {
+            ...onboardingData,
+            photos: photoUrls,
+            bio_screenshots: screenshotUrls
+        }
+
+        const onboardingResult = await storeOnboardingData(onboardingDataWithImages)
+        if (!onboardingResult.success || !onboardingResult.data) {
+            return { success: false, error: onboardingResult.error || 'Failed to store onboarding data' }
+        }
+
+        const customerId = onboardingResult.data.customer_id!
+        console.log('✅ Onboarding data stored with customer_id:', customerId)
+
         console.log('🎉 Complete onboarding flow finished successfully!')
-        return { success: true, onboardingId: onboardingId }
+        return { success: true, customerId: customerId }
     } catch (error) {
         console.error('❌ Complete onboarding flow failed:', error)
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -258,37 +210,23 @@ export async function completeOnboardingFlow(
 }
 
 /**
- * Get onboarding data with images
+ * Get onboarding data by customer ID
  */
-export async function getOnboardingWithImages(onboardingId: string): Promise<{ success: boolean; data?: any; error?: string }> {
+export async function getOnboardingByCustomerId(customerId: string): Promise<{ success: boolean; data?: OnboardingData; error?: string }> {
     try {
-        // Get onboarding data
         const { data: onboardingData, error: onboardingError } = await supabase
             .from(TABLES.ONBOARDING)
             .select('*')
-            .eq('id', onboardingId)
+            .eq('customer_id', customerId)
             .single()
 
         if (onboardingError) {
             return { success: false, error: onboardingError.message }
         }
 
-        // Get associated images
-        const { data: imagesData, error: imagesError } = await supabase
-            .from(TABLES.IMAGES)
-            .select('*')
-            .eq('payment_id', onboardingData.payment_id)
-
-        if (imagesError) {
-            return { success: false, error: imagesError.message }
-        }
-
         return {
             success: true,
-            data: {
-                ...onboardingData,
-                images: imagesData
-            }
+            data: onboardingData
         }
     } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -334,4 +272,6 @@ export async function getAllOnboarding(): Promise<{ success: boolean; data?: Onb
         return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
+
+
 

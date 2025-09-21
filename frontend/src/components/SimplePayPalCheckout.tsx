@@ -128,14 +128,16 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
             // STEP 1: Store payment data in Supabase
             const paymentData = {
-                order_id: paymentDetails.id,
+                customer_id: formDataToUse?.customer_id || '', // This should come from onboarding
+                paypal_order_id: paymentDetails.id,
+                paypal_transaction_id: paymentDetails.purchase_units?.[0]?.payments?.captures?.[0]?.id || '',
                 amount: parseFloat(actualAmountPaid), // Use the actual amount paid
                 currency: 'USD',
-                package_id: selectedPackage?.id || '',
-                package_name: selectedPackage?.name || 'Payment',
-                customer_email: formDataToUse?.email || '',
-                customer_name: formDataToUse?.name || '',
-                status: 'completed'
+                pricing_option: selectedPackage?.name || 'Payment',
+                status: 'completed',
+                payment_method: 'paypal',
+                payer_email: formDataToUse?.email || '',
+                payer_name: formDataToUse?.name || ''
             };
 
             console.log("💳 Storing payment data in Supabase:", paymentData);
