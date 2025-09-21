@@ -155,9 +155,19 @@ export async function completeOnboardingFlow(
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
     try {
         console.log('🚀 Starting complete onboarding flow...')
+        console.log('📊 Input data:', {
+            onboardingDataKeys: Object.keys(onboardingData),
+            profilePhotosCount: profilePhotos.length,
+            screenshotsCount: screenshots.length,
+            profilePhotosTypes: profilePhotos.map(f => f.constructor.name),
+            screenshotsTypes: screenshots.map(f => f.constructor.name)
+        })
 
         // Check if Supabase is configured
-        if (!isSupabaseConfigured()) {
+        const isConfigured = isSupabaseConfigured()
+        console.log('🔍 Supabase configured:', isConfigured)
+        
+        if (!isConfigured) {
             console.log('⚠️ Supabase not configured. Logging onboarding data to console and localStorage.')
             console.log('📝 ONBOARDING DATA:', onboardingData)
             console.log('📸 Profile photos:', profilePhotos.length)
