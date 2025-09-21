@@ -1,9 +1,15 @@
-import { NextResponse } from 'next/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-export default function middleware(request: any) {
-  // No authentication middleware needed - just pass through
-  return NextResponse.next();
-}
+const isProtectedRoute = createRouteMatcher([
+  '/onboarding(.*)',
+  '/pricing(.*)',
+  '/checkout(.*)',
+  '/payment(.*)'
+])
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) auth().protect()
+})
 
 export const config = {
   matcher: [

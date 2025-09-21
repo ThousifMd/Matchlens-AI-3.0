@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Shield } from "lucide-react";
 import { usePackage, Package } from "@/contexts/PackageContext";
 import { trackAddToCart, trackCTAClick } from "@/lib/metaPixel";
+import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import AuthModal from "./AuthModal";
 
 
@@ -75,8 +76,8 @@ export const PricingSection = () => {
   const [localSelectedPackage, setLocalSelectedPackage] = React.useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingPackageId, setPendingPackageId] = useState<string | null>(null);
-  // No authentication needed - direct to checkout
-  const isSignedIn = false;
+  // Use Clerk authentication
+  const isSignedIn = true; // This will be handled by Clerk components
   const isLoaded = true;
 
   const handlePackageSelect = (packageId: string) => {
@@ -231,53 +232,121 @@ export const PricingSection = () => {
                     </ul>
 
                     {tier.id === "most-matches" ? (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGetStarted(tier.id);
-                        }}
-                        className="relative w-full h-auto min-h-[48px] px-8 py-3 rounded-lg font-semibold text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group mt-auto flex items-center justify-center"
-                        aria-label="Make my profile irresistible"
-                      >
-                        {/* Glass morphism background with flowing colors */}
-                        <div className="absolute inset-0 rounded-lg overflow-hidden">
-                          {/* Gold wave from left */}
-                          <div className="absolute top-0 left-0 w-full h-full">
-                            <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
-                              style={{
-                                animation: 'flowingWaveLeft 3s ease-in-out infinite'
-                              }}>
-                            </div>
-                          </div>
+                      <SignedOut>
+                        <SignUpButton mode="modal">
+                          <button
+                            type="button"
+                            className="relative w-full h-auto min-h-[48px] px-8 py-3 rounded-lg font-semibold text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group mt-auto flex items-center justify-center"
+                            aria-label="Make my profile irresistible"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const packageData = pricingTiers.find(t => t.id === tier.id);
+                              if (packageData) {
+                                trackCTAClick(`Get Started - ${packageData.name}`, "Pricing Section");
+                                setSelectedPackage(packageData);
+                                localStorage.setItem('selectedPackage', tier.id);
+                              }
+                            }}
+                          >
+                            {/* Glass morphism background with flowing colors */}
+                            <div className="absolute inset-0 rounded-lg overflow-hidden">
+                              {/* Gold wave from left */}
+                              <div className="absolute top-0 left-0 w-full h-full">
+                                <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
+                                  style={{
+                                    animation: 'flowingWaveLeft 3s ease-in-out infinite'
+                                  }}>
+                                </div>
+                              </div>
 
-                          {/* Pink wave from right */}
-                          <div className="absolute top-0 right-0 w-full h-full">
-                            <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
-                              style={{
-                                animation: 'flowingWaveRight 3s ease-in-out infinite'
-                              }}>
+                              {/* Pink wave from right */}
+                              <div className="absolute top-0 right-0 w-full h-full">
+                                <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
+                                  style={{
+                                    animation: 'flowingWaveRight 3s ease-in-out infinite'
+                                  }}>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <span className="relative z-20 text-white font-bold drop-shadow-lg text-sm whitespace-nowrap">Make my profile irresistible</span>
-                      </button>
+                            <span className="relative z-20 text-white font-bold drop-shadow-lg text-sm whitespace-nowrap">Make my profile irresistible</span>
+                          </button>
+                        </SignUpButton>
+                      </SignedOut>
                     ) : (
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGetStarted(tier.id);
-                        }}
-                        className={`w-full transition-all duration-300 mt-auto ${localSelectedPackage === tier.id
-                          ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black shadow-lg shadow-[#FFD700]/30"
-                          : "bg-white/5 backdrop-blur-sm border border-white/20 text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
-                          }`}
-                        size="lg"
-                      >
-                        Make my profile irresistible
-                      </Button>
+                      <SignedOut>
+                        <SignUpButton mode="modal">
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const packageData = pricingTiers.find(t => t.id === tier.id);
+                              if (packageData) {
+                                trackCTAClick(`Get Started - ${packageData.name}`, "Pricing Section");
+                                setSelectedPackage(packageData);
+                                localStorage.setItem('selectedPackage', tier.id);
+                              }
+                            }}
+                            className={`w-full transition-all duration-300 mt-auto ${localSelectedPackage === tier.id
+                              ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black shadow-lg shadow-[#FFD700]/30"
+                              : "bg-white/5 backdrop-blur-sm border border-white/20 text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
+                              }`}
+                            size="lg"
+                          >
+                            Make my profile irresistible
+                          </Button>
+                        </SignUpButton>
+                      </SignedOut>
                     )}
+                    <SignedIn>
+                      {tier.id === "most-matches" ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGetStarted(tier.id);
+                          }}
+                          className="relative w-full h-auto min-h-[48px] px-8 py-3 rounded-lg font-semibold text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group mt-auto flex items-center justify-center"
+                          aria-label="Make my profile irresistible"
+                        >
+                          {/* Glass morphism background with flowing colors */}
+                          <div className="absolute inset-0 rounded-lg overflow-hidden">
+                            {/* Gold wave from left */}
+                            <div className="absolute top-0 left-0 w-full h-full">
+                              <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
+                                style={{
+                                  animation: 'flowingWaveLeft 3s ease-in-out infinite'
+                                }}>
+                              </div>
+                            </div>
+
+                            {/* Pink wave from right */}
+                            <div className="absolute top-0 right-0 w-full h-full">
+                              <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
+                                style={{
+                                  animation: 'flowingWaveRight 3s ease-in-out infinite'
+                                }}>
+                              </div>
+                            </div>
+                          </div>
+
+                          <span className="relative z-20 text-white font-bold drop-shadow-lg text-sm whitespace-nowrap">Make my profile irresistible</span>
+                        </button>
+                      ) : (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGetStarted(tier.id);
+                          }}
+                          className={`w-full transition-all duration-300 mt-auto ${localSelectedPackage === tier.id
+                            ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black shadow-lg shadow-[#FFD700]/30"
+                            : "bg-white/5 backdrop-blur-sm border border-white/20 text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
+                            }`}
+                          size="lg"
+                        >
+                          Make my profile irresistible
+                        </Button>
+                      )}
+                    </SignedIn>
                   </CardContent>
                 </Card>
               ))}

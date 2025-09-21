@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Script from "next/script";
+import { ClerkProvider } from '@clerk/nextjs';
 import { PackageProvider } from "@/contexts/PackageContext";
 import { Inter } from "next/font/google";
 
@@ -242,9 +243,11 @@ export default function RootLayout({
           data-debug="true"
           data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
         />
-        <PackageProvider>
-          {children}
-        </PackageProvider>
+        <ClerkProvider>
+          <PackageProvider>
+            {children}
+          </PackageProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
