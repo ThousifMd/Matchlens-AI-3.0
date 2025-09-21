@@ -27,8 +27,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 </div>
                 <div className="space-y-4">
                     <SignUp
-                        afterSignUpUrl="/onboarding"
-                        afterSignInUrl="/onboarding"
+                        fallbackRedirectUrl="/onboarding"
+                        signInFallbackRedirectUrl="/onboarding"
                     />
                 </div>
             </div>

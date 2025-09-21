@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from '@clerk/nextjs';
 
 import { CheckCircle2, User, Users, Dumbbell, Plane, UtensilsCrossed, Camera, Music, BookOpen, Gamepad2, Heart, Coffee, Mountain, Upload, X, Check, Smartphone, FileText, TrendingUp, Mail, Phone, Clock } from "lucide-react";
 import { trackInitiateCheckout, trackCompleteRegistration, trackFormStep } from "@/lib/metaPixel";
@@ -141,9 +142,11 @@ const badExamples = [
 ];
 
 function OnboardingContent() {
+  const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // All useState hooks must be called before any conditional returns
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,6 +175,13 @@ function OnboardingContent() {
     wantMore: "",
     oneLiner: ""
   });
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/');
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   // Check for payment verification and clear any stored form data on page load
   useEffect(() => {
@@ -209,6 +219,82 @@ function OnboardingContent() {
     // Track form initiation
     trackInitiateCheckout("Onboarding Form");
   }, [searchParams, router]);
+
+  // All useCallback hooks must be called before any conditional returns
+  const handleFileSelect = useCallback((files: FileList | null) => {
+    if (!files) return;
+
+    const newFiles = Array.from(files).filter(file => {
+      // Only allow image files
+      return file.type.startsWith('image/');
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      photos: [...prev.photos, ...newFiles].slice(0, 20) // Max 20 photos
+    }));
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    handleFileSelect(e.dataTransfer.files);
+  }, [handleFileSelect]);
+
+  const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleScreenshotSelect = useCallback((files: FileList | null) => {
+    if (!files) return;
+
+    const newFiles = Array.from(files).filter(file => {
+      return file.type.startsWith('image/');
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      screenshots: [...prev.screenshots, ...newFiles].slice(0, 10)
+    }));
+  }, []);
+
+  const handleScreenshotDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setScreenshotDragActive(false);
+    handleScreenshotSelect(e.dataTransfer.files);
+  }, [handleScreenshotSelect]);
+
+  const handleScreenshotDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setScreenshotDragActive(true);
+    } else if (e.type === "dragleave") {
+      setScreenshotDragActive(false);
+    }
+  }, []);
+
+  // Show loading while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show nothing if not signed in (will redirect)
+  if (!isSignedIn) {
+    return null;
+  }
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -383,37 +469,6 @@ function OnboardingContent() {
     setCurrentStep(5);
   };
 
-  const handleFileSelect = useCallback((files: FileList | null) => {
-    if (!files) return;
-
-    const newFiles = Array.from(files).filter(file => {
-      // Only allow image files
-      return file.type.startsWith('image/');
-    });
-
-    setFormData(prev => ({
-      ...prev,
-      photos: [...prev.photos, ...newFiles].slice(0, 20) // Max 20 photos
-    }));
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    handleFileSelect(e.dataTransfer.files);
-  }, [handleFileSelect]);
-
-  const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
   const removePhoto = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -446,36 +501,6 @@ function OnboardingContent() {
       return { ...prev, interests };
     });
   };
-
-  const handleScreenshotSelect = useCallback((files: FileList | null) => {
-    if (!files) return;
-
-    const newFiles = Array.from(files).filter(file => {
-      return file.type.startsWith('image/');
-    });
-
-    setFormData(prev => ({
-      ...prev,
-      screenshots: [...prev.screenshots, ...newFiles].slice(0, 10)
-    }));
-  }, []);
-
-  const handleScreenshotDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setScreenshotDragActive(false);
-    handleScreenshotSelect(e.dataTransfer.files);
-  }, [handleScreenshotSelect]);
-
-  const handleScreenshotDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setScreenshotDragActive(true);
-    } else if (e.type === "dragleave") {
-      setScreenshotDragActive(false);
-    }
-  }, []);
 
   const removeScreenshot = (index: number) => {
     setFormData(prev => ({

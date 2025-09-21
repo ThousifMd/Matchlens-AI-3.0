@@ -2,15 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   devIndicators: {
-    buildActivity: false,
-    buildActivityPosition: 'bottom-right',
-  },
-  // Disable all development indicators
-  experimental: {
-    devIndicators: {
-      buildActivity: false,
-      buildActivityPosition: 'bottom-right',
-    },
+    position: 'bottom-right',
   },
   turbopack: {
     rules: {

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
+import { UserButton, SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
 import {
   Shield,
   CreditCard,
@@ -284,9 +284,12 @@ function TestimonialSidebar() {
 }
 
 function CheckoutContent() {
+  const { isSignedIn, isLoaded } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { selectedPackage: contextPackage, setSelectedPackage } = usePackage();
+
+  // All useState hooks must be called before any conditional returns
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [showMobilePayment, setShowMobilePayment] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
@@ -294,11 +297,14 @@ function CheckoutContent() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [onboardingFormData, setOnboardingFormData] = useState<any>(null);
   const [countdown, setCountdown] = useState(24 * 60 * 60); // 24 hours in seconds
+  const [selectedPackage, setSelectedPackageState] = useState<Package | null>(null);
 
-  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
-  };
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/');
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -322,14 +328,6 @@ function CheckoutContent() {
     };
   }, [showSuccessPopup, countdown]);
 
-  // Format countdown to HH:MM:SS
-  const formatCountdown = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
   // Load onboarding form data from localStorage
   useEffect(() => {
     const storedFormData = localStorage.getItem('onboardingFormData');
@@ -346,10 +344,7 @@ function CheckoutContent() {
     }
   }, []);
 
-
-  // Use package from context or fallback to localStorage (client-side only)
-  const [selectedPackage, setSelectedPackageState] = useState<Package | null>(null);
-
+  // Package selection effect
   useEffect(() => {
     if (contextPackage) {
       setSelectedPackageState(contextPackage);
@@ -365,6 +360,34 @@ function CheckoutContent() {
       }
     }
   }, [contextPackage]);
+
+  // Show loading while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show nothing if not signed in (will redirect)
+  if (!isSignedIn) {
+    return null;
+  }
+
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
+  };
+
+  // Format countdown to HH:MM:SS
+  const formatCountdown = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
 
   const handlePaymentSuccess = async () => {
     console.log('🎉 handlePaymentSuccess called!');

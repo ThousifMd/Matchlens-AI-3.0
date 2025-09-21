@@ -1,10 +1,37 @@
+"use client";
+
 import * as React from "react";
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import { PricingSection } from "@/components/PricingSection";
 import Footer from "@/components/Footer";
 
 export default function PricingPage() {
+    const { isSignedIn, isLoaded } = useAuth();
+    const router = useRouter();
     const ctaHref = "/onboarding";
+
+    // Redirect to home if not authenticated
+    React.useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            router.push('/');
+        }
+    }, [isLoaded, isSignedIn, router]);
+
+    // Show loading while checking authentication
+    if (!isLoaded) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-black">
+                <div className="text-white">Loading...</div>
+            </div>
+        );
+    }
+
+    // Show nothing if not signed in (will redirect)
+    if (!isSignedIn) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen bg-black text-white relative overflow-hidden">
