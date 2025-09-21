@@ -15,8 +15,8 @@ const pricingTiers = [
   {
     id: "get-noticed",
     name: "Get Noticed",
-    price: 40,
-    originalPrice: 100,
+    price: 14.80,
+    originalPrice: 37,
     discount: "Save 60%",
     description: "Perfect for getting started",
     benefit: "Quick upgrade to make your profile stand out instantly.",
@@ -33,8 +33,8 @@ const pricingTiers = [
   {
     id: "most-matches",
     name: "Most Attention",
-    price: 80,
-    originalPrice: 200,
+    price: 27.60,
+    originalPrice: 69,
     discount: "Most Popular",
     description: "Most popular choice",
     benefit: "Our proven package that triples your responses fast.",
@@ -52,8 +52,8 @@ const pricingTiers = [
   {
     id: "date-ready",
     name: "Complete Makeover",
-    price: 120,
-    originalPrice: 300,
+    price: 38.80,
+    originalPrice: 97,
     discount: "Save 60%",
     description: "Ultimate transformation",
     benefit: "Full profile makeover so you're ready for real dates, not just swipes.",
