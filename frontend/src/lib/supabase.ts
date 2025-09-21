@@ -9,13 +9,17 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-    const isConfigured = supabaseUrl !== 'https://placeholder.supabase.co' &&
+    const isConfigured = supabaseUrl && 
+        supabaseAnonKey && 
+        supabaseUrl !== 'https://placeholder.supabase.co' &&
         supabaseAnonKey !== 'placeholder-key' &&
         supabaseUrl !== 'YOUR_SUPABASE_URL' &&
-        supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY'
+        supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY' &&
+        supabaseUrl.includes('supabase.co') &&
+        supabaseAnonKey.startsWith('eyJ')
 
     console.log('🔍 Supabase Configuration Check:', {
-        supabaseUrl,
+        supabaseUrl: supabaseUrl ? 'Set' : 'Not set',
         hasAnonKey: !!supabaseAnonKey,
         isConfigured
     });
