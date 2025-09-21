@@ -431,6 +431,16 @@ function OnboardingContent() {
         console.log("📸 Profile photos:", formData.photos.length);
         console.log("📱 Screenshots:", formData.screenshots.length);
 
+        // Store images in window object for checkout process to access
+        if (typeof window !== 'undefined') {
+          (window as any).onboardingPhotos = formData.photos;
+          (window as any).onboardingScreenshots = formData.screenshots;
+          console.log('📸 Stored images in window object:', {
+            photos: formData.photos.length,
+            screenshots: formData.screenshots.length
+          });
+        }
+
         const result = await completeOnboardingFlow(
           onboardingData,
           formData.photos,
