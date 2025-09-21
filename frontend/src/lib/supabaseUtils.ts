@@ -186,17 +186,24 @@ export async function completeOnboardingFlow(
                 bucket: STORAGE_BUCKETS.PHOTOS,
                 files: profilePhotos.map(f => ({ name: f.name, size: f.size, type: f.type }))
             })
-            const profilePhotosResult = await uploadFiles(
-                profilePhotos,
-                STORAGE_BUCKETS.PHOTOS,
-                `customer-${Date.now()}`
-            )
+            
+            try {
+                const profilePhotosResult = await uploadFiles(
+                    profilePhotos,
+                    STORAGE_BUCKETS.PHOTOS,
+                    `customer-${Date.now()}`
+                )
 
-            if (profilePhotosResult.success && profilePhotosResult.urls) {
-                photoUrls = profilePhotosResult.urls
-                console.log('✅ Profile photos uploaded successfully:', photoUrls.length, photoUrls)
-            } else {
-                console.warn('⚠️ Profile photos upload failed:', profilePhotosResult.errors)
+                if (profilePhotosResult.success && profilePhotosResult.urls) {
+                    photoUrls = profilePhotosResult.urls
+                    console.log('✅ Profile photos uploaded successfully:', photoUrls.length, photoUrls)
+                } else {
+                    console.error('❌ Profile photos upload failed:', profilePhotosResult.errors)
+                    // Don't return early, continue with empty photoUrls
+                }
+            } catch (error) {
+                console.error('❌ Profile photos upload exception:', error)
+                // Don't return early, continue with empty photoUrls
             }
         } else {
             console.log('📸 No profile photos to upload')
@@ -210,17 +217,24 @@ export async function completeOnboardingFlow(
                 bucket: STORAGE_BUCKETS.BIO_SCREENSHOTS,
                 files: screenshots.map(f => ({ name: f.name, size: f.size, type: f.type }))
             })
-            const screenshotsResult = await uploadFiles(
-                screenshots,
-                STORAGE_BUCKETS.BIO_SCREENSHOTS,
-                `customer-${Date.now()}`
-            )
+            
+            try {
+                const screenshotsResult = await uploadFiles(
+                    screenshots,
+                    STORAGE_BUCKETS.BIO_SCREENSHOTS,
+                    `customer-${Date.now()}`
+                )
 
-            if (screenshotsResult.success && screenshotsResult.urls) {
-                screenshotUrls = screenshotsResult.urls
-                console.log('✅ Screenshots uploaded successfully:', screenshotUrls.length, screenshotUrls)
-            } else {
-                console.warn('⚠️ Screenshots upload failed:', screenshotsResult.errors)
+                if (screenshotsResult.success && screenshotsResult.urls) {
+                    screenshotUrls = screenshotsResult.urls
+                    console.log('✅ Screenshots uploaded successfully:', screenshotUrls.length, screenshotUrls)
+                } else {
+                    console.error('❌ Screenshots upload failed:', screenshotsResult.errors)
+                    // Don't return early, continue with empty screenshotUrls
+                }
+            } catch (error) {
+                console.error('❌ Screenshots upload exception:', error)
+                // Don't return early, continue with empty screenshotUrls
             }
         } else {
             console.log('📱 No screenshots to upload')
