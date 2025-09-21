@@ -10,6 +10,12 @@ export async function uploadFile(
 ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
         console.log(`📤 Uploading file to ${bucket}/${path}`)
+        console.log(`📄 File details:`, {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified
+        })
 
         const { data, error } = await supabase.storage
             .from(bucket)
@@ -20,8 +26,11 @@ export async function uploadFile(
 
         if (error) {
             console.error('❌ Upload error:', error)
+            console.error('❌ Upload error details:', JSON.stringify(error, null, 2))
             return { success: false, error: error.message }
         }
+
+        console.log('✅ Upload response:', data)
 
         // Get public URL
         const { data: urlData } = supabase.storage
@@ -44,10 +53,13 @@ export async function uploadFiles(
     bucket: string,
     basePath: string
 ): Promise<{ success: boolean; urls?: string[]; errors?: string[] }> {
+    console.log(`📤 Starting batch upload of ${files.length} files to ${bucket}/${basePath}`)
+    
     const results = await Promise.all(
         files.map(async (file, index) => {
             const fileName = `${Date.now()}-${index}-${file.name}`
             const filePath = `${basePath}/${fileName}`
+            console.log(`📤 Uploading file ${index + 1}/${files.length}: ${file.name}`)
             return await uploadFile(file, bucket, filePath)
         })
     )
@@ -55,8 +67,14 @@ export async function uploadFiles(
     const successful = results.filter(r => r.success)
     const failed = results.filter(r => !r.success)
 
+    console.log(`📊 Upload results: ${successful.length} successful, ${failed.length} failed`)
+
     if (failed.length > 0) {
         console.warn('⚠️ Some files failed to upload:', failed)
+    }
+
+    if (successful.length > 0) {
+        console.log('✅ Successfully uploaded files:', successful.map(r => r.url))
     }
 
     return {
@@ -153,7 +171,11 @@ export async function completeOnboardingFlow(
         // Step 1: Upload profile photos
         let photoUrls: string[] = []
         if (profilePhotos.length > 0) {
-            console.log('📸 Uploading profile photos...')
+            console.log('📸 Uploading profile photos...', {
+                count: profilePhotos.length,
+                bucket: STORAGE_BUCKETS.PHOTOS,
+                files: profilePhotos.map(f => ({ name: f.name, size: f.size, type: f.type }))
+            })
             const profilePhotosResult = await uploadFiles(
                 profilePhotos,
                 STORAGE_BUCKETS.PHOTOS,
@@ -162,16 +184,22 @@ export async function completeOnboardingFlow(
 
             if (profilePhotosResult.success && profilePhotosResult.urls) {
                 photoUrls = profilePhotosResult.urls
-                console.log('✅ Profile photos uploaded:', photoUrls.length)
+                console.log('✅ Profile photos uploaded successfully:', photoUrls.length, photoUrls)
             } else {
                 console.warn('⚠️ Profile photos upload failed:', profilePhotosResult.errors)
             }
+        } else {
+            console.log('📸 No profile photos to upload')
         }
 
         // Step 2: Upload screenshots
         let screenshotUrls: string[] = []
         if (screenshots.length > 0) {
-            console.log('📱 Uploading screenshots...')
+            console.log('📱 Uploading screenshots...', {
+                count: screenshots.length,
+                bucket: STORAGE_BUCKETS.BIO_SCREENSHOTS,
+                files: screenshots.map(f => ({ name: f.name, size: f.size, type: f.type }))
+            })
             const screenshotsResult = await uploadFiles(
                 screenshots,
                 STORAGE_BUCKETS.BIO_SCREENSHOTS,
@@ -180,10 +208,12 @@ export async function completeOnboardingFlow(
 
             if (screenshotsResult.success && screenshotsResult.urls) {
                 screenshotUrls = screenshotsResult.urls
-                console.log('✅ Screenshots uploaded:', screenshotUrls.length)
+                console.log('✅ Screenshots uploaded successfully:', screenshotUrls.length, screenshotUrls)
             } else {
                 console.warn('⚠️ Screenshots upload failed:', screenshotsResult.errors)
             }
+        } else {
+            console.log('📱 No screenshots to upload')
         }
 
         // Step 3: Store onboarding data with image URLs
