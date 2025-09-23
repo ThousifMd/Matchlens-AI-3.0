@@ -131,7 +131,6 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
             // STEP 2: Store onboarding data in Supabase FIRST (required for foreign key)
             const onboardingData = {
-                customer_id: tempCustomerId,
                 name: formDataToUse?.name || '',
                 age: parseInt(formDataToUse?.age) || 0,
                 dating_goals: formDataToUse?.datingGoal || '',
@@ -141,6 +140,8 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                 email: formDataToUse?.email || '',
                 phone: formDataToUse?.phone || '',
                 location: formDataToUse?.location || '',
+                photos: [], // Will be populated after file uploads
+                bio_screenshots: [], // Will be populated after file uploads
                 additional_info: JSON.stringify({
                     bodyType: formDataToUse?.bodyType || '',
                     stylePreference: formDataToUse?.stylePreference || '',
@@ -160,7 +161,7 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
             // STEP 3: Store payment data in Supabase (after onboarding exists)
             const paymentData = {
-                customer_id: tempCustomerId,
+                customer_id: onboardingResult.data?.customer_id || tempCustomerId,
                 paypal_order_id: paymentDetails.id,
                 paypal_transaction_id: paymentDetails.purchase_units?.[0]?.payments?.captures?.[0]?.id || '',
                 amount: parseFloat(actualAmountPaid), // Use the actual amount paid
@@ -184,12 +185,13 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
             console.log("✅ Payment data stored in Supabase successfully:", paymentResult.data);
 
             // STEP 4: Upload photos to Supabase Storage
+            const customerId = onboardingResult.data?.customer_id || tempCustomerId;
             if (originalPhotos.length > 0) {
                 console.log("📸 Uploading profile photos to Supabase Storage...");
                 for (let i = 0; i < originalPhotos.length; i++) {
                     const photo = originalPhotos[i];
                     const sanitizedName = sanitizeFilename(photo.name);
-                    const photoPath = `${tempCustomerId}/profile-photos/${Date.now()}_${i}_${sanitizedName}`;
+                    const photoPath = `${customerId}/profile-photos/${Date.now()}_${i}_${sanitizedName}`;
                     const uploadResult = await uploadFile(photo, 'profile-photos', photoPath);
 
                     if (uploadResult.success) {
@@ -206,7 +208,7 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                 for (let i = 0; i < screenshotPhotos.length; i++) {
                     const screenshot = screenshotPhotos[i];
                     const sanitizedName = sanitizeFilename(screenshot.name);
-                    const screenshotPath = `${tempCustomerId}/screenshots/${Date.now()}_${i}_${sanitizedName}`;
+                    const screenshotPath = `${customerId}/screenshots/${Date.now()}_${i}_${sanitizedName}`;
                     const uploadResult = await uploadFile(screenshot, 'screenshots', screenshotPath);
 
                     if (uploadResult.success) {
