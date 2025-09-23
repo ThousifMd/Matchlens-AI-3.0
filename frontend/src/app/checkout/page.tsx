@@ -515,7 +515,7 @@ function CheckoutContent() {
         <div className="mb-6 flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/pricing')}
             className="text-white hover:text-white flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
