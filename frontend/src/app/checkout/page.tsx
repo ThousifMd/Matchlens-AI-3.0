@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { usePackage } from "@/contexts/PackageContext";
 import SimplePayPalCheckout from "@/components/SimplePayPalCheckout";
+import { sendConfirmationEmail, getExpectedDelivery } from "@/lib/email";
 // Temporarily disabled Clerk - add your real keys to .env.local to enable
 // import { useAuth } from '@clerk/nextjs';
 
@@ -156,7 +157,7 @@ function PaymentForm({ selectedPackage, onPaymentSuccess, showNotification, onbo
     try {
       // Create payment data for Dodo
       const paymentData = {
-        amount: 100, // Always charge $1 (100 cents)
+        amount: Math.round(selectedPackage.price * 100), // Convert to cents
         currency: 'usd',
         packageId: selectedPackage.id,
         packageName: selectedPackage.name,
@@ -401,6 +402,32 @@ function CheckoutContent() {
     setCountdown(24 * 60 * 60); // Reset countdown to 24 hours
 
     console.log('🎊 Confetti and popup should be showing now!');
+
+    // Send confirmation email
+    try {
+      const emailData = {
+        to: onboardingFormData?.email || 'customer@example.com',
+        customerName: onboardingFormData?.name || 'Valued Customer',
+        packageName: selectedPackage?.name || 'Profile Transformation',
+        packagePrice: selectedPackage?.price || 0,
+        orderId: `ORDER-${Date.now()}`,
+        expectedDelivery: getExpectedDelivery(selectedPackage?.name || '')
+      };
+
+      console.log('📧 Sending confirmation email...', emailData);
+      const emailResult = await sendConfirmationEmail(emailData);
+
+      if (emailResult.success) {
+        console.log('✅ Confirmation email sent successfully!');
+        showNotification('success', 'Confirmation email sent! Check your inbox for order details.');
+      } else {
+        console.log('⚠️ Email sending failed:', emailResult.error);
+        showNotification('info', 'Payment successful! Email confirmation will be sent shortly.');
+      }
+    } catch (error) {
+      console.error('❌ Error sending confirmation email:', error);
+      showNotification('info', 'Payment successful! Email confirmation will be sent shortly.');
+    }
 
     // Hide confetti after 3 seconds
     setTimeout(() => setShowConfetti(false), 3000);
