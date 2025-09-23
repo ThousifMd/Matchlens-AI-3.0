@@ -8,9 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Shield } from "lucide-react";
 import { usePackage, Package } from "@/contexts/PackageContext";
 import { trackAddToCart, trackCTAClick } from "@/lib/metaPixel";
-// Temporarily disabled Clerk - add your real keys to .env.local to enable
-// import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
-import AuthModal from "./AuthModal";
 
 
 const pricingTiers = [
@@ -76,10 +73,8 @@ const pricingTiers = [
 export const PricingSection = () => {
   const { selectedPackage, setSelectedPackage } = usePackage();
   const [localSelectedPackage, setLocalSelectedPackage] = React.useState<string | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [pendingPackageId, setPendingPackageId] = useState<string | null>(null);
-  // Use Clerk authentication
-  const isSignedIn = true; // This will be handled by Clerk components
+  // Simplified authentication - always allow checkout
+  const isSignedIn = true;
   const isLoaded = true;
 
   const handlePackageSelect = (packageId: string) => {
@@ -100,30 +95,12 @@ export const PricingSection = () => {
       // Store selected package in localStorage for payment page
       localStorage.setItem('selectedPackage', packageId);
 
-      // Check if user is already signed in
-      if (isLoaded && isSignedIn) {
-        // User is already signed in, go to checkout (payment) first
-        console.log('User already signed in, redirecting to checkout');
-        window.location.href = '/checkout';
-      } else {
-        // User not signed in, show auth modal
-        setIsAuthModalOpen(true);
-      }
+      // Always redirect to checkout (no authentication required)
+      console.log('Redirecting to checkout');
+      window.location.href = '/checkout';
     }
   };
 
-  const handleAuthSuccess = () => {
-    console.log('handleAuthSuccess called - redirecting to checkout');
-    // Close modal
-    setIsAuthModalOpen(false);
-    // Route to checkout (payment) first
-    window.location.href = '/checkout';
-  };
-
-  const handleAuthModalClose = () => {
-    setIsAuthModalOpen(false);
-    setPendingPackageId(null);
-  };
 
   return (
     <section className="py-16 lg:py-24" aria-labelledby="pricing-title">
@@ -274,12 +251,6 @@ export const PricingSection = () => {
         </div>
       </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={handleAuthModalClose}
-        onSuccess={handleAuthSuccess}
-      />
     </section >
   );
 };
