@@ -3,44 +3,44 @@
 export default function DatingPlatformsSection() {
     const platforms = [
         {
-            name: "Instagram",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/1200px-Instagram_logo_2016.svg.png"
+            name: "Tinder",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Tinder_logo_2019.svg/1200px-Tinder_logo_2019.svg.png"
         },
         {
-            name: "Facebook",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png"
+            name: "Bumble",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Bumble_logo.svg/1200px-Bumble_logo.svg.png"
         },
         {
-            name: "LinkedIn",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/1200px-LinkedIn_logo_initials.png"
+            name: "Hinge",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Hinge_logo.svg/1200px-Hinge_logo.svg.png"
         },
         {
-            name: "X",
-            logo: "https://abs.twimg.com/favicons/twitter.3.ico"
+            name: "Match",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Match_logo.svg/1200px-Match_logo.svg.png"
         },
         {
-            name: "TikTok",
-            logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/1200px-TikTok_logo.svg.png"
+            name: "OkCupid",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/OkCupid-Logo.svg/1200px-OkCupid-Logo.svg.png"
         },
         {
-            name: "YouTube",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1200px-YouTube_full-color_icon_%282017%29.svg.png"
+            name: "Coffee Meets Bagel",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coffee_Meets_Bagel_logo.svg/1200px-Coffee_Meets_Bagel_logo.svg.png"
         },
         {
-            name: "Snapchat",
-            logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Snapchat_logo.svg/1200px-Snapchat_logo.svg.png"
+            name: "Plenty of Fish",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Plenty_of_Fish_logo.svg/1200px-Plenty_of_Fish_logo.svg.png"
         },
         {
-            name: "Pinterest",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Pinterest-logo.png/1200px-Pinterest-logo.png"
+            name: "eHarmony",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Eharmony_logo.svg/1200px-Eharmony_logo.svg.png"
         },
         {
-            name: "WhatsApp",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png"
+            name: "Zoosk",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Zoosk_logo.svg/1200px-Zoosk_logo.svg.png"
         },
         {
-            name: "Discord",
-            logo: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
+            name: "Elite Singles",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/EliteSingles_logo.svg/1200px-EliteSingles_logo.svg.png"
         },
     ];
 
@@ -60,11 +60,9 @@ export default function DatingPlatformsSection() {
                                 key={`first-${index}`}
                                 className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity duration-300"
                             >
-                                <img
-                                    src={platform.logo}
-                                    alt={platform.name}
-                                    className="h-8 w-auto object-contain"
-                                />
+                                <span className="text-white font-semibold text-lg px-4">
+                                    {platform.name}
+                                </span>
                             </div>
                         ))}
 
@@ -74,11 +72,9 @@ export default function DatingPlatformsSection() {
                                 key={`second-${index}`}
                                 className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity duration-300"
                             >
-                                <img
-                                    src={platform.logo}
-                                    alt={platform.name}
-                                    className="h-8 w-auto object-contain"
-                                />
+                                <span className="text-white font-semibold text-lg px-4">
+                                    {platform.name}
+                                </span>
                             </div>
                         ))}
 
@@ -88,11 +84,9 @@ export default function DatingPlatformsSection() {
                                 key={`third-${index}`}
                                 className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity duration-300"
                             >
-                                <img
-                                    src={platform.logo}
-                                    alt={platform.name}
-                                    className="h-8 w-auto object-contain"
-                                />
+                                <span className="text-white font-semibold text-lg px-4">
+                                    {platform.name}
+                                </span>
                             </div>
                         ))}
 
@@ -102,11 +96,9 @@ export default function DatingPlatformsSection() {
                                 key={`fourth-${index}`}
                                 className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity duration-300"
                             >
-                                <img
-                                    src={platform.logo}
-                                    alt={platform.name}
-                                    className="h-8 w-auto object-contain"
-                                />
+                                <span className="text-white font-semibold text-lg px-4">
+                                    {platform.name}
+                                </span>
                             </div>
                         ))}
                     </div>

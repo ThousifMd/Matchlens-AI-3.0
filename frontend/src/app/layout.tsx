@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Script from "next/script";
-import { ClerkProvider } from '@clerk/nextjs';
-import { PackageProvider } from "@/contexts/PackageContext";
 import { Inter } from "next/font/google";
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { ClerkProvider } from "@clerk/nextjs";
+import { PackageProvider } from "@/contexts/PackageContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -257,11 +258,9 @@ export default function RootLayout({
           data-debug="true"
           data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
         />
-        <ClerkProvider>
-          <PackageProvider>
-            {children}
-          </PackageProvider>
-        </ClerkProvider>
+        <PackageProvider>
+          {children}
+        </PackageProvider>
       </body>
     </html>
   );

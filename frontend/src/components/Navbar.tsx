@@ -3,8 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { trackCTAClick } from "@/lib/metaPixel"
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import {
+//   SignInButton,
+//   SignUpButton,
+//   SignedIn,
+//   SignedOut,
+//   UserButton,
+// } from "@clerk/nextjs"
 
 
 type NavbarProps = {
@@ -63,40 +70,18 @@ export default function Navbar({ ctaHref, className }: NavbarProps) {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-8">
-            <SignedOut>
-              <div
-                className="inline-flex items-center px-5 py-2 bg-transparent backdrop-blur-sm border border-[#FFD700]/40 rounded-lg font-medium hover:border-[#FFD700]/60 hover:bg-transparent transition-all duration-300"
-                onClick={() => {
-                  trackCTAClick("Join the Top 5%", "Navbar Desktop");
-                }}
-              >
-                <SignUpButton
-                  mode="modal"
-                  fallbackRedirectUrl="/onboarding"
-                  signInFallbackRedirectUrl="/onboarding"
-                >
-                  <span className="bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] bg-clip-text text-transparent">
-                    Join the Top 5%
-                  </span>
-                </SignUpButton>
-              </div>
-            </SignedOut>
-            <SignedIn>
+            <Link href="/onboarding">
               <button
                 className="inline-flex items-center px-5 py-2 bg-transparent backdrop-blur-sm border border-[#FFD700]/40 rounded-lg font-medium hover:border-[#FFD700]/60 hover:bg-transparent transition-all duration-300"
                 onClick={() => {
                   trackCTAClick("Join the Top 5%", "Navbar Desktop");
-                  window.location.href = '/onboarding';
                 }}
               >
                 <span className="bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] bg-clip-text text-transparent">
                   Join the Top 5%
                 </span>
               </button>
-            </SignedIn>
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+            </Link>
           </div>
         </div>
       </div>

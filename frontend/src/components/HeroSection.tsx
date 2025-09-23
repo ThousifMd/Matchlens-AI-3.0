@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
+import Link from "next/link";
 import { trackCTAClick } from "@/lib/metaPixel";
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
 
 interface HeroSectionProps {
   ctaHref: string;
@@ -27,8 +29,8 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
       {/* Hero Content */}
       <div className="text-center md:text-left mb-8 md:mb-12">
         <h1 className="font-heading font-extrabold tracking-tight text-[28px] leading-[1.1] md:text-[36px] lg:text-[56px] md:leading-[1.05] text-white mb-4 md:mb-6">
-          Did you know <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">85%</span> of profiles get zer<span className="text-[#FFD700]">0</span> attention.<br />
-          Only <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">5%</span> get all the attention.
+          Do you know that <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">85%</span> of women swipe<br />
+          right on only <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">5%</span> of men?
         </h1>
 
         <p className="text-lg md:text-xl text-white max-w-3xl mb-8 md:mb-8 leading-relaxed mx-auto md:mx-0 px-4 md:px-0">
@@ -41,52 +43,13 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
 
         {/* CTA Button */}
         <div className="mb-4 flex justify-center md:justify-start">
-          <SignedOut>
-            <div
-              className="relative h-auto min-h-[52px] md:min-h-[48px] px-6 md:px-8 py-4 md:py-3 rounded-lg font-semibold text-base md:text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group touch-manipulation w-full md:w-auto"
+          <Link href="/onboarding">
+            <button
               onClick={() => {
+                console.log('CTA Button clicked - redirecting to onboarding!');
                 trackCTAClick("Make Me A Match Magnet", "Hero Section");
               }}
-            >
-              <SignUpButton
-                mode="modal"
-                fallbackRedirectUrl="/onboarding"
-                signInFallbackRedirectUrl="/onboarding"
-                aria-label="Upgrade my photos"
-              >
-                <div className="relative">
-                  {/* Glass morphism background with flowing colors */}
-                  <div className="absolute inset-0 rounded-lg overflow-hidden">
-                    {/* Gold wave from left */}
-                    <div className="absolute top-0 left-0 w-full h-full">
-                      <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
-                        style={{
-                          animation: 'flowingWaveLeft 3s ease-in-out infinite'
-                        }}>
-                      </div>
-                    </div>
-
-                    {/* Pink wave from right */}
-                    <div className="absolute top-0 right-0 w-full h-full">
-                      <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
-                        style={{
-                          animation: 'flowingWaveRight 3s ease-in-out infinite'
-                        }}>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <span className="relative z-20 text-white font-bold drop-shadow-lg">Upgrade my photos</span>
-                </div>
-              </SignUpButton>
-            </div>
-          </SignedOut>
-          <SignedIn>
-            <button
-              type="button"
-              onClick={handleCTA}
-              className="relative h-auto min-h-[52px] md:min-h-[48px] px-6 md:px-8 py-4 md:py-3 rounded-lg font-semibold text-base md:text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group touch-manipulation w-full md:w-auto"
+              className="relative h-auto min-h-[52px] md:min-h-[48px] px-6 md:px-8 py-4 md:py-3 rounded-lg font-semibold text-base md:text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group touch-manipulation w-full md:w-auto cursor-pointer"
               aria-label="Upgrade my photos"
             >
               {/* Glass morphism background with flowing colors */}
@@ -108,12 +71,11 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
                     }}>
                   </div>
                 </div>
-
               </div>
 
-              <span className="relative z-20 text-white font-bold drop-shadow-lg">Upgrade my photos</span>
+              <span className="relative z-20 text-white font-bold drop-shadow-lg">Make me a match magnet</span>
             </button>
-          </SignedIn>
+          </Link>
         </div>
 
         {/* First Impression Text */}
@@ -126,7 +88,7 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
           </p>
         </div>
 
-        {/* Supporting Text */}
+        {/* Trust Indicators */}
         <div className="flex items-center justify-center md:justify-start gap-2 text-xs md:text-sm text-white mb-4">
           <span>⚡ 2,847+ transformed</span>
           <span>•</span>
@@ -135,7 +97,7 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
           <span>⏰ 24hr delivery</span>
         </div>
 
-        {/* Customer Rating */}
+        {/* Rating */}
         <div className="flex items-center justify-center md:justify-start gap-2 text-sm md:text-base text-white">
           <div className="flex items-center gap-1">
             <span className="text-[#FFD700] text-lg">★★★★★</span>
@@ -143,6 +105,6 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
           <span className="font-semibold">2,847 Happy Customers</span>
         </div>
       </div>
-    </section >
+    </section>
   );
 }

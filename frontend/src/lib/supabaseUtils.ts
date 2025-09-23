@@ -1,6 +1,17 @@
 import { supabase, TABLES, STORAGE_BUCKETS, isSupabaseConfigured, type PaymentData, type OnboardingData } from './supabase'
 
 /**
+ * Sanitize filename for Supabase Storage
+ * Removes/replaces invalid characters that cause "Invalid key" errors
+ */
+export function sanitizeFilename(filename: string): string {
+    return filename
+        .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace special chars with underscore
+        .replace(/_+/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+}
+
+/**
  * Upload a file to Supabase Storage
  */
 export async function uploadFile(
@@ -54,12 +65,13 @@ export async function uploadFiles(
     basePath: string
 ): Promise<{ success: boolean; urls?: string[]; errors?: string[] }> {
     console.log(`📤 Starting batch upload of ${files.length} files to ${bucket}/${basePath}`)
-    
+
     const results = await Promise.all(
         files.map(async (file, index) => {
-            const fileName = `${Date.now()}-${index}-${file.name}`
+            const sanitizedName = sanitizeFilename(file.name)
+            const fileName = `${Date.now()}-${index}-${sanitizedName}`
             const filePath = `${basePath}/${fileName}`
-            console.log(`📤 Uploading file ${index + 1}/${files.length}: ${file.name}`)
+            console.log(`📤 Uploading file ${index + 1}/${files.length}: ${file.name} -> ${sanitizedName}`)
             return await uploadFile(file, bucket, filePath)
         })
     )
@@ -166,7 +178,7 @@ export async function completeOnboardingFlow(
         // Check if Supabase is configured
         const isConfigured = isSupabaseConfigured()
         console.log('🔍 Supabase configured:', isConfigured)
-        
+
         if (!isConfigured) {
             console.log('⚠️ Supabase not configured. Logging onboarding data to console and localStorage.')
             console.log('📝 ONBOARDING DATA:', onboardingData)
@@ -186,7 +198,7 @@ export async function completeOnboardingFlow(
                 bucket: STORAGE_BUCKETS.PHOTOS,
                 files: profilePhotos.map(f => ({ name: f.name, size: f.size, type: f.type }))
             })
-            
+
             try {
                 const profilePhotosResult = await uploadFiles(
                     profilePhotos,
@@ -217,7 +229,7 @@ export async function completeOnboardingFlow(
                 bucket: STORAGE_BUCKETS.BIO_SCREENSHOTS,
                 files: screenshots.map(f => ({ name: f.name, size: f.size, type: f.type }))
             })
-            
+
             try {
                 const screenshotsResult = await uploadFiles(
                     screenshots,

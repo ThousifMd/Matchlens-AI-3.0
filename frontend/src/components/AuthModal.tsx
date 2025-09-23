@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { SignIn, SignUp } from '@clerk/nextjs';
 
 interface AuthModalProps {
     isOpen: boolean;
@@ -29,6 +28,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     <SignUp
                         fallbackRedirectUrl="/onboarding"
                         signInFallbackRedirectUrl="/onboarding"
+                    />
+                    <SignIn
+                        fallbackRedirectUrl="/onboarding"
+                        signUpFallbackRedirectUrl="/onboarding"
                     />
                 </div>
             </div>

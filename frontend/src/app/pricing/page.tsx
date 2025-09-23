@@ -1,14 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import { PricingSection } from "@/components/PricingSection";
 import Footer from "@/components/Footer";
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { useAuth } from '@clerk/nextjs';
 
 export default function PricingPage() {
-    const { isSignedIn, isLoaded } = useAuth();
+    // Temporarily disabled Clerk - add your real keys to .env.local to enable
+    const isSignedIn = true; // Allow access for now
+    const isLoaded = true;
     const router = useRouter();
     const ctaHref = "/onboarding";
 

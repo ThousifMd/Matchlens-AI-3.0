@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from '@clerk/nextjs';
 
 import { CheckCircle2, User, Users, Dumbbell, Plane, UtensilsCrossed, Camera, Music, BookOpen, Gamepad2, Heart, Coffee, Mountain, Upload, X, Check, Smartphone, FileText, TrendingUp, Mail, Phone, Clock } from "lucide-react";
 import { trackInitiateCheckout, trackCompleteRegistration, trackFormStep } from "@/lib/metaPixel";
 import { completeOnboardingFlow } from "@/lib/supabaseUtils";
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { useAuth } from '@clerk/nextjs';
 
 interface OnboardingData {
   name: string;
@@ -142,7 +143,9 @@ const badExamples = [
 ];
 
 function OnboardingContent() {
-  const { isSignedIn, isLoaded } = useAuth();
+  // Temporarily disabled Clerk - add your real keys to .env.local to enable
+  const isSignedIn = true; // Allow access for now
+  const isLoaded = true;
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -216,9 +219,18 @@ function OnboardingContent() {
       localStorage.removeItem('onboardingFormData');
       setCurrentStep(1);
     }
+
+    // Always scroll to top when component mounts
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Track form initiation
     trackInitiateCheckout("Onboarding Form");
   }, [searchParams, router]);
+
+  // Scroll to top whenever currentStep changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   // All useCallback hooks must be called before any conditional returns
   const handleFileSelect = useCallback((files: FileList | null) => {
@@ -382,15 +394,23 @@ function OnboardingContent() {
     if (currentStep === 1 && isStep1Valid) {
       trackFormStep(1, "Basic Information");
       setCurrentStep(2);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 2 && isStep2Valid) {
       trackFormStep(2, "Photo Upload");
       setCurrentStep(3);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 3 && isStep3Valid) {
       trackFormStep(3, "Screenshot Upload");
       setCurrentStep(4);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 4) {
       trackFormStep(4, "Bio and Preferences");
       setCurrentStep(5);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 5 && isStep5Valid) {
       setIsSubmitting(true);
       console.log('🚀 Starting form submission...');
@@ -477,6 +497,8 @@ function OnboardingContent() {
 
   const handleSkipStep4 = () => {
     setCurrentStep(5);
+    // Scroll to top when skipping step
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const removePhoto = (index: number) => {
@@ -584,7 +606,11 @@ function OnboardingContent() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCurrentStep(currentStep - 1)}
+                  onClick={() => {
+                    setCurrentStep(currentStep - 1);
+                    // Scroll to top when going back
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="text-white hover:text-white flex items-center gap-1 text-xs"
                 >
                   Back
@@ -695,6 +721,23 @@ function OnboardingContent() {
             </CardHeader>
 
             <CardContent className="space-y-8">
+              {/* Mobile Back Button */}
+              {currentStep > 1 && (
+                <div className="flex justify-start md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentStep(currentStep - 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-white hover:text-white flex items-center gap-1 text-sm"
+                  >
+                    ← Back
+                  </Button>
+                </div>
+              )}
+
               {/* Pick your vibe */}
               <div className="space-y-3">
                 <label className="text-lg font-bold text-white">
@@ -899,6 +942,23 @@ function OnboardingContent() {
             </CardHeader>
 
             <CardContent className="space-y-8">
+              {/* Mobile Back Button */}
+              {currentStep > 1 && (
+                <div className="flex justify-start md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentStep(currentStep - 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-white hover:text-white flex items-center gap-1 text-sm"
+                  >
+                    ← Back
+                  </Button>
+                </div>
+              )}
+
               {/* Dating Profile Screenshots Upload */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -1043,6 +1103,23 @@ function OnboardingContent() {
                 We need 10-20 clear photos of your face
               </p>
             </div>
+
+            {/* Mobile Back Button */}
+            {currentStep > 1 && (
+              <div className="flex justify-start md:hidden mb-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setCurrentStep(currentStep - 1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-white hover:text-white flex items-center gap-1 text-sm"
+                >
+                  ← Back
+                </Button>
+              </div>
+            )}
 
             {/* Desktop: Two columns, Mobile: Stacked */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
@@ -1214,6 +1291,23 @@ function OnboardingContent() {
             </CardHeader>
 
             <CardContent className="space-y-8">
+              {/* Mobile Back Button */}
+              {currentStep > 1 && (
+                <div className="flex justify-start md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentStep(currentStep - 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-white hover:text-white flex items-center gap-1 text-sm"
+                  >
+                    ← Back
+                  </Button>
+                </div>
+              )}
+
               {/* Body Type Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-white">
@@ -1348,6 +1442,23 @@ function OnboardingContent() {
             </CardHeader>
 
             <CardContent className="space-y-8">
+              {/* Mobile Back Button */}
+              {currentStep > 1 && (
+                <div className="flex justify-start md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentStep(currentStep - 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="text-white hover:text-white flex items-center gap-1 text-sm"
+                  >
+                    ← Back
+                  </Button>
+                </div>
+              )}
+
               {/* Back to Homepage Button */}
               <div className="flex justify-start">
                 <Button asChild variant="ghost" size="sm" className="text-white hover:text-white">

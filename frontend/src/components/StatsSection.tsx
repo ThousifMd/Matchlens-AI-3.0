@@ -9,22 +9,26 @@ export const StatsSection: React.FC = () => {
         {
             icon: <TrendingUp className="w-6 h-6" />,
             stat: "85%",
-            highlight: "of profiles fail to grab attention — only 5% stand out"
+            highlight: "of women swipe on just 5% of men",
+            description: "Tinder study reveals extreme inequality in match distribution"
         },
         {
             icon: <Clock className="w-6 h-6" />,
             stat: "3s",
-            highlight: "average time someone spends deciding if they engage with your profile"
+            highlight: "average time spent on a profile",
+            description: "First impression is everything - your photos decide your fate"
         },
         {
             icon: <Target className="w-6 h-6" />,
-            stat: "10×",
-            highlight: "more responses with optimised photos"
+            stat: "10x",
+            highlight: "more matches with optimized photos",
+            description: "Professional photos vs. selfies - the difference is staggering"
         },
         {
             icon: <AlertTriangle className="w-6 h-6" />,
             stat: "78%",
-            highlight: "lose interest based on the first photo alone"
+            highlight: "get rejected on first photo alone",
+            description: "Your main photo makes or breaks your dating success"
         }
     ];
 
@@ -37,7 +41,7 @@ export const StatsSection: React.FC = () => {
                     {/* Header */}
                     <div className="text-center mb-8 md:mb-12">
                         <h2 className="text-2xl md:text-3xl lg:text-5xl font-heading font-bold text-white mb-3 md:mb-4">
-                            The Science of Standing Out
+                            The Science of Swiping
                         </h2>
                         <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
                             Real data reveals the harsh reality of modern dating apps
@@ -62,9 +66,14 @@ export const StatsSection: React.FC = () => {
                                     </div>
 
                                     {/* Highlight */}
-                                    <h3 className="text-sm md:text-base font-semibold text-white leading-tight">
+                                    <h3 className="text-sm md:text-base font-semibold text-white leading-tight mb-2">
                                         {insight.highlight}
                                     </h3>
+
+                                    {/* Description */}
+                                    <p className="text-xs md:text-sm text-white/70 leading-relaxed">
+                                        {insight.description}
+                                    </p>
                                 </div>
                             </div>
                         ))}
@@ -77,10 +86,10 @@ export const StatsSection: React.FC = () => {
                                 Here's the Reality
                             </h3>
                             <h4 className="text-xl md:text-2xl font-bold text-white mb-4">
-                                Your photos decide your first impression everywhere online
+                                Your photos decide your dating fate
                             </h4>
-                            <p className="text-base md:text-lg text-white/90">
-                                In a world where most profiles get ignored, professional-quality photos aren't just nice to have - they're your competitive advantage.
+                            <p className="text-base md:text-lg text-white/90 text-center">
+                                In a world where <span className="text-[#d4ae36] font-bold">85%</span> of <span className="text-[#d4ae36] font-bold">women swipe on just</span> <span className="text-[#d4ae36] font-bold">5%</span> of <span className="text-[#d4ae36] font-bold">men</span>, professional photos aren't just nice to have-they're your competitive advantage.
                             </p>
                         </div>
                     </div>

@@ -173,13 +173,13 @@ export default function Footer({
               >
                 Privacy
               </Link>
-              <Link
-                href="/contact"
+              <a
+                href="mailto:support@matchlensai.com?subject=Contact Request&body=Hi, I would like to..."
                 aria-label="Contact us"
                 className="text-sm text-white/70 hover:text-white transition-colors duration-200"
               >
                 Contact
-              </Link>
+              </a>
             </nav>
 
             {/* Copyright and Rating */}

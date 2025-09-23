@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UserButton, SignedIn, SignedOut, useAuth } from '@clerk/nextjs';
 import {
   Shield,
   CreditCard,
@@ -22,6 +21,8 @@ import {
 import Link from "next/link";
 import { usePackage } from "@/contexts/PackageContext";
 import SimplePayPalCheckout from "@/components/SimplePayPalCheckout";
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { useAuth } from '@clerk/nextjs';
 
 // Dodo Payment Configuration
 const DODO_PAYMENT_URL = process.env.NEXT_PUBLIC_DODO_PAYMENT_URL || "https://api.dodo.com/payments";
@@ -39,8 +40,8 @@ const packages: Package[] = [
   {
     id: "get-noticed",
     name: "Get Noticed",
-    originalPrice: 99,
-    price: 37,
+    originalPrice: 37,
+    price: 14.99,
     features: [
       "5 enhanced photos",
       "3 style variations",
@@ -51,8 +52,8 @@ const packages: Package[] = [
   {
     id: "most-matches",
     name: "Most Attention",
-    originalPrice: 199,
-    price: 69,
+    originalPrice: 69,
+    price: 27.99,
     features: [
       "10 enhanced photos",
       "6 style variations",
@@ -65,8 +66,8 @@ const packages: Package[] = [
   {
     id: "date-ready",
     name: "Complete Makeover",
-    originalPrice: 199,
-    price: 97,
+    originalPrice: 97,
+    price: 38.99,
     features: [
       "20 enhanced photos",
       "10 style variations",
@@ -155,7 +156,7 @@ function PaymentForm({ selectedPackage, onPaymentSuccess, showNotification, onbo
     try {
       // Create payment data for Dodo
       const paymentData = {
-        amount: selectedPackage.price * 100, // Convert to cents
+        amount: 100, // Always charge $1 (100 cents)
         currency: 'usd',
         packageId: selectedPackage.id,
         packageName: selectedPackage.name,
@@ -284,7 +285,9 @@ function TestimonialSidebar() {
 }
 
 function CheckoutContent() {
-  const { isSignedIn, isLoaded } = useAuth();
+  // Temporarily disabled Clerk - add your real keys to .env.local to enable
+  const isSignedIn = true; // Allow access for now
+  const isLoaded = true;
   const searchParams = useSearchParams();
   const router = useRouter();
   const { selectedPackage: contextPackage, setSelectedPackage } = usePackage();
@@ -411,7 +414,7 @@ function CheckoutContent() {
     );
   }
 
-  const savings = selectedPackage.originalPrice - selectedPackage.price;
+  const savings = Math.round(selectedPackage.originalPrice - selectedPackage.price);
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -519,9 +522,10 @@ function CheckoutContent() {
             Back to Pricing
           </Button>
 
-          <SignedIn>
+          {/* Temporarily disabled Clerk UserButton - add your real keys to .env.local to enable */}
+          {/* <SignedIn>
             <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          </SignedIn> */}
         </div>
 
         {/* First Impression Header */}

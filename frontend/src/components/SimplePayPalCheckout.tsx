@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { storePaymentData } from "@/lib/supabaseUtils";
+import { storePaymentData, storeOnboardingData, uploadFile, sanitizeFilename } from "@/lib/supabaseUtils";
 
 // Custom styles for PayPal buttons
 const paypalStyles = `
@@ -70,8 +70,8 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
     const storePaymentAndOnboarding = async (paymentDetails: any) => {
         try {
-            // Get the actual amount from the selected package
-            const actualAmountPaid = selectedPackage?.price?.toString() || "0.00";
+            // Always charge $1 for testing
+            const actualAmountPaid = "1.00";
 
             // Use passed form data or fallback to localStorage
             let formDataToUse = onboardingFormData;
@@ -126,9 +126,41 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                 screenshotPhotos: screenshotPhotosBase64
             };
 
-            // STEP 1: Store payment data in Supabase
+            // STEP 1: Generate a proper UUID for customer ID since we don't have authentication
+            const tempCustomerId = crypto.randomUUID();
+
+            // STEP 2: Store onboarding data in Supabase FIRST (required for foreign key)
+            const onboardingData = {
+                customer_id: tempCustomerId,
+                name: formDataToUse?.name || '',
+                age: parseInt(formDataToUse?.age) || 0,
+                dating_goals: formDataToUse?.datingGoal || '',
+                current_dating_apps: formDataToUse?.currentMatches ? [formDataToUse.currentMatches] : [],
+                bio: formDataToUse?.currentBio || '',
+                interests: formDataToUse?.interests || [],
+                email: formDataToUse?.email || '',
+                phone: formDataToUse?.phone || '',
+                location: formDataToUse?.location || '',
+                additional_info: JSON.stringify({
+                    bodyType: formDataToUse?.bodyType || '',
+                    stylePreference: formDataToUse?.stylePreference || '',
+                    ethnicity: formDataToUse?.ethnicity || ''
+                })
+            };
+
+            console.log("📝 Storing onboarding data in Supabase:", onboardingData);
+            const onboardingResult = await storeOnboardingData(onboardingData);
+
+            if (!onboardingResult.success) {
+                console.error("❌ Failed to store onboarding data in Supabase:", onboardingResult.error);
+                throw new Error("Failed to store onboarding data");
+            }
+
+            console.log("✅ Onboarding data stored in Supabase successfully:", onboardingResult.data);
+
+            // STEP 3: Store payment data in Supabase (after onboarding exists)
             const paymentData = {
-                customer_id: formDataToUse?.customer_id || '', // This should come from onboarding
+                customer_id: tempCustomerId,
                 paypal_order_id: paymentDetails.id,
                 paypal_transaction_id: paymentDetails.purchase_units?.[0]?.payments?.captures?.[0]?.id || '',
                 amount: parseFloat(actualAmountPaid), // Use the actual amount paid
@@ -150,6 +182,40 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
             }
 
             console.log("✅ Payment data stored in Supabase successfully:", paymentResult.data);
+
+            // STEP 4: Upload photos to Supabase Storage
+            if (originalPhotos.length > 0) {
+                console.log("📸 Uploading profile photos to Supabase Storage...");
+                for (let i = 0; i < originalPhotos.length; i++) {
+                    const photo = originalPhotos[i];
+                    const sanitizedName = sanitizeFilename(photo.name);
+                    const photoPath = `${tempCustomerId}/profile-photos/${Date.now()}_${i}_${sanitizedName}`;
+                    const uploadResult = await uploadFile(photo, 'profile-photos', photoPath);
+
+                    if (uploadResult.success) {
+                        console.log(`✅ Photo ${i + 1} uploaded successfully:`, uploadResult.url);
+                    } else {
+                        console.error(`❌ Failed to upload photo ${i + 1}:`, uploadResult.error);
+                    }
+                }
+            }
+
+            // STEP 5: Upload screenshots to Supabase Storage
+            if (screenshotPhotos.length > 0) {
+                console.log("📱 Uploading screenshots to Supabase Storage...");
+                for (let i = 0; i < screenshotPhotos.length; i++) {
+                    const screenshot = screenshotPhotos[i];
+                    const sanitizedName = sanitizeFilename(screenshot.name);
+                    const screenshotPath = `${tempCustomerId}/screenshots/${Date.now()}_${i}_${sanitizedName}`;
+                    const uploadResult = await uploadFile(screenshot, 'screenshots', screenshotPath);
+
+                    if (uploadResult.success) {
+                        console.log(`✅ Screenshot ${i + 1} uploaded successfully:`, uploadResult.url);
+                    } else {
+                        console.error(`❌ Failed to upload screenshot ${i + 1}:`, uploadResult.error);
+                    }
+                }
+            }
 
             // Set payment verification flag
             localStorage.setItem('paymentCompleted', 'true');
@@ -216,7 +282,7 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                                 <PayPalButtons
                                     createOrder={async (data, actions) => {
                                         try {
-                                            const amount = selectedPackage?.price?.toString() || "0.00";
+                                            const amount = "1.00"; // Always charge $1 for testing
                                             console.log('🔄 Creating PayPal order directly...');
                                             console.log('📦 Package data:', { selectedPackage, amount });
 

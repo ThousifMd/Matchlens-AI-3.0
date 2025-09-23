@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Shield } from "lucide-react";
 import { usePackage, Package } from "@/contexts/PackageContext";
 import { trackAddToCart, trackCTAClick } from "@/lib/metaPixel";
-import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
+// Temporarily disabled Clerk - add your real keys to .env.local to enable
+// import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import AuthModal from "./AuthModal";
 
 
@@ -15,7 +17,7 @@ const pricingTiers = [
   {
     id: "get-noticed",
     name: "Get Noticed",
-    price: 14.80,
+    price: 14.99,
     originalPrice: 37,
     discount: "Save 60%",
     description: "Perfect for getting started",
@@ -33,7 +35,7 @@ const pricingTiers = [
   {
     id: "most-matches",
     name: "Most Attention",
-    price: 27.60,
+    price: 27.99,
     originalPrice: 69,
     discount: "Most Popular",
     description: "Most popular choice",
@@ -52,7 +54,7 @@ const pricingTiers = [
   {
     id: "date-ready",
     name: "Complete Makeover",
-    price: 38.80,
+    price: 38.99,
     originalPrice: 97,
     discount: "Save 60%",
     description: "Ultimate transformation",
@@ -105,7 +107,6 @@ export const PricingSection = () => {
         window.location.href = '/checkout';
       } else {
         // User not signed in, show auth modal
-        setPendingPackageId(packageId);
         setIsAuthModalOpen(true);
       }
     }
@@ -232,128 +233,39 @@ export const PricingSection = () => {
                     </ul>
 
                     {tier.id === "most-matches" ? (
-                      <SignedOut>
-                        <div
-                          className="relative w-full h-auto min-h-[48px] px-8 py-3 rounded-lg font-semibold text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group mt-auto flex items-center justify-center"
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            const packageData = pricingTiers.find(t => t.id === tier.id);
-                            if (packageData) {
-                              trackCTAClick(`Get Started - ${packageData.name}`, "Pricing Section");
-                              setSelectedPackage(packageData);
+                      <div className="mt-auto">
+                        <Link href="/checkout">
+                          <button
+                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
+                            onClick={() => {
+                              console.log('Pricing CTA clicked - redirecting to checkout!');
+                              setSelectedPackage(tier);
                               localStorage.setItem('selectedPackage', tier.id);
-                            }
-                          }}
-                        >
-                          <SignUpButton
-                            mode="modal"
-                            fallbackRedirectUrl="/onboarding"
-                            signInFallbackRedirectUrl="/onboarding"
-                          >
-                            <div className="relative">
-                              {/* Glass morphism background with flowing colors */}
-                              <div className="absolute inset-0 rounded-lg overflow-hidden">
-                                {/* Gold wave from left */}
-                                <div className="absolute top-0 left-0 w-full h-full">
-                                  <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
-                                    style={{
-                                      animation: 'flowingWaveLeft 3s ease-in-out infinite'
-                                    }}>
-                                  </div>
-                                </div>
-
-                                {/* Pink wave from right */}
-                                <div className="absolute top-0 right-0 w-full h-full">
-                                  <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
-                                    style={{
-                                      animation: 'flowingWaveRight 3s ease-in-out infinite'
-                                    }}>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <span className="relative z-20 text-white font-bold drop-shadow-lg text-sm whitespace-nowrap">Make my profile irresistible</span>
-                            </div>
-                          </SignUpButton>
-                        </div>
-                      </SignedOut>
-                    ) : (
-                      <SignedOut>
-                        <div
-                          className={`w-full transition-all duration-300 mt-auto ${localSelectedPackage === tier.id
-                            ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black shadow-lg shadow-[#FFD700]/30"
-                            : "bg-white/5 backdrop-blur-sm border border-white/20 text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
-                            }`}
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            const packageData = pricingTiers.find(t => t.id === tier.id);
-                            if (packageData) {
-                              trackCTAClick(`Get Started - ${packageData.name}`, "Pricing Section");
-                              setSelectedPackage(packageData);
-                              localStorage.setItem('selectedPackage', tier.id);
-                            }
-                          }}
-                        >
-                          <SignUpButton
-                            mode="modal"
-                            fallbackRedirectUrl="/onboarding"
-                            signInFallbackRedirectUrl="/onboarding"
+                              trackCTAClick("Make My Profile Irresistible", "Pricing Section");
+                            }}
                           >
                             Make my profile irresistible
-                          </SignUpButton>
-                        </div>
-                      </SignedOut>
+                          </button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="mt-auto">
+                        <Link href="/checkout">
+                          <button
+                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
+                            onClick={() => {
+                              console.log('Pricing CTA 2 clicked - redirecting to checkout!');
+                              setSelectedPackage(tier);
+                              localStorage.setItem('selectedPackage', tier.id);
+                              trackCTAClick("Make My Profile Irresistible", "Pricing Section 2");
+                            }}
+                          >
+                            Make my profile irresistible
+                          </button>
+                        </Link>
+                      </div>
                     )}
-                    <SignedIn>
-                      {tier.id === "most-matches" ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGetStarted(tier.id);
-                          }}
-                          className="relative w-full h-auto min-h-[48px] px-8 py-3 rounded-lg font-semibold text-lg bg-white/5 backdrop-blur-md border border-white/20 hover:bg-white/10 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group mt-auto flex items-center justify-center"
-                          aria-label="Make my profile irresistible"
-                        >
-                          {/* Glass morphism background with flowing colors */}
-                          <div className="absolute inset-0 rounded-lg overflow-hidden">
-                            {/* Gold wave from left */}
-                            <div className="absolute top-0 left-0 w-full h-full">
-                              <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
-                                style={{
-                                  animation: 'flowingWaveLeft 3s ease-in-out infinite'
-                                }}>
-                              </div>
-                            </div>
-
-                            {/* Pink wave from right */}
-                            <div className="absolute top-0 right-0 w-full h-full">
-                              <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
-                                style={{
-                                  animation: 'flowingWaveRight 3s ease-in-out infinite'
-                                }}>
-                              </div>
-                            </div>
-                          </div>
-
-                          <span className="relative z-20 text-white font-bold drop-shadow-lg text-sm whitespace-nowrap">Make my profile irresistible</span>
-                        </button>
-                      ) : (
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGetStarted(tier.id);
-                          }}
-                          className={`w-full transition-all duration-300 mt-auto ${localSelectedPackage === tier.id
-                            ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black shadow-lg shadow-[#FFD700]/30"
-                            : "bg-white/5 backdrop-blur-sm border border-white/20 text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
-                            }`}
-                          size="lg"
-                        >
-                          Make my profile irresistible
-                        </Button>
-                      )}
-                    </SignedIn>
+                    {/* Temporarily disabled SignedIn section */}
                   </CardContent>
                 </Card>
               ))}

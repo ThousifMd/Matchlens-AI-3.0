@@ -133,9 +133,12 @@ export const FAQSection: React.FC = () => {
                     <p className="text-gray-400 mb-6 max-w-md mx-auto">
                         Our support team is here to help you get the most out of your photos.
                     </p>
-                    <button className="px-5 py-2 bg-gradient-to-r from-[#d4ae36] to-[#c19d2f] hover:from-[#c19d2f] hover:to-[#b8941f] text-black rounded-full font-medium transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#d4ae36]/30 border border-[#d4ae36]/20 backdrop-blur-sm">
+                    <a
+                        href="mailto:support@matchlensai.com?subject=Support Request&body=Hi, I need help with..."
+                        className="inline-block px-5 py-2 bg-gradient-to-r from-[#d4ae36] to-[#c19d2f] hover:from-[#c19d2f] hover:to-[#b8941f] text-black rounded-full font-medium transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#d4ae36]/30 border border-[#d4ae36]/20 backdrop-blur-sm"
+                    >
                         Contact Support
-                    </button>
+                    </a>
                 </div>
             </div>
         </section>

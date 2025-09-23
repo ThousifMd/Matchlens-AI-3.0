@@ -67,7 +67,7 @@ const DatingAppCard: React.FC<DatingAppCardProps> = ({
                             <button
                                 onClick={() => setActiveTab('after')}
                                 className={`flex-1 py-2 px-3 text-xs font-medium rounded-full transition-all ${activeTab === 'after'
-                                    ? 'bg-gray-600 text-white'
+                                    ? 'bg-black text-white'
                                     : 'text-gray-600 hover:text-gray-800'
                                     }`}
                             >
@@ -98,6 +98,18 @@ const DatingAppCard: React.FC<DatingAppCardProps> = ({
                                     </p>
                                 </div>
 
+                                {/* Interaction Buttons */}
+                                <div className="flex justify-center items-center gap-4">
+                                    <button className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors">
+                                        <span className="text-white text-lg font-bold">×</span>
+                                    </button>
+                                    <button className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-400 transition-colors">
+                                        <span className="text-white text-lg">♥</span>
+                                    </button>
+                                    <button className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors">
+                                        <span className="text-white text-sm font-bold">i</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -130,7 +142,7 @@ export const DatingAppContext: React.FC = () => {
                         age={29}
                         distance="3 mi"
                         beforeBio="Adventure seeker & coffee enthusiast. Love hiking, photography, and trying new restaurants. Let's explore the city together!"
-                        afterBio="Traveled to 47 countries. Climbed Kilimanjaro last month. Still can't cook pasta without burning it 😅 Looking for my adventure partner"
+                        afterBio="Traveled to 47 countries. Climbed Kilimanjaro last month. Still can't cook pasta without burning it ..."
                         appStyle="tinder"
                     />
 
@@ -143,7 +155,7 @@ export const DatingAppContext: React.FC = () => {
                         age={31}
                         distance="12 mi"
                         beforeBio="Software engineer who enjoys hiking and playing guitar. Family and friends mean everything to me."
-                        afterBio="Scaled an app to 1M users by day, hiking California peaks by weekend. If I'm not coding, I'm playing John Mayer on guitar for my niece. Swipe if you want real adventures."
+                        afterBio="Scaled an app to 1M users by day, hiking California peaks by weekend. If I'm not coding,..."
                         appStyle="bumble"
                     />
 
@@ -156,7 +168,7 @@ export const DatingAppContext: React.FC = () => {
                         age={27}
                         distance="1 mi"
                         beforeBio="Creative soul who loves music, art galleries, and weekend brunches. Always up for a spontaneous road trip or cozy night in."
-                        afterBio="Published author & TEDx speaker. Still get nervous on first dates 😊 Looking for someone who loves deep conversations"
+                        afterBio="Published author & TEDx speaker. Still get nervous on first dates 😊 Looking for someone..."
                         appStyle="hinge"
                     />
                 </div>
