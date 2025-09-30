@@ -43,7 +43,7 @@ export default function PricingPage() {
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#d4ae36]/5 via-transparent to-transparent"></div>
             <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-[#d4ae36]/3 via-transparent to-transparent"></div>
 
-            <Navbar ctaHref={ctaHref} />
+            <Navbar ctaHref={ctaHref} hideCTA={true} />
 
             <main className="relative z-10">
                 {/* Pricing Section */}

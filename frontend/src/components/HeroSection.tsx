@@ -33,9 +33,12 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
         </h1>
 
         {/* Supporting Statistics */}
-        <div className="mb-6 md:mb-6">
-          <p className="text-base md:text-lg text-white/70 italic">
-            Did you know? <span className="text-[#FFD700] font-semibold">85%</span> of women swipe right on only <span className="text-[#FFD700] font-semibold">5%</span> of men
+        <div className="mb-6 md:mb-8">
+          <p className="text-base md:text-lg text-white/70 italic leading-relaxed">
+            <span className="block mb-2 text-[#FFD700] font-semibold">Did you know?</span>
+            <span className="block">
+              <span className="text-[#FFD700] font-bold text-xl md:text-2xl">85%</span> of women swipe right on only <span className="text-[#FFD700] font-bold text-xl md:text-2xl">5%</span> of men
+            </span>
           </p>
         </div>
 
