@@ -23,9 +23,10 @@ const pricingTiers = [
       "5 enhanced photos",
       "3 style variations",
       "Basic bio tips",
-      "Private and secure"
+      "Private and secure",
+      "Final delivery (no revisions)"
     ],
-    buttonText: "Make my profile irresistible",
+    buttonText: "Get me noticed",
     popular: false,
     mobileOrder: 2
   },
@@ -42,9 +43,10 @@ const pricingTiers = [
       "6 style variations",
       "Bio optimization",
       "Profile strategy guide",
-      "Private and secure"
+      "Private and secure",
+      "Final delivery (no revisions)"
     ],
-    buttonText: "Make my profile irresistible",
+    buttonText: "Make me a match magnet",
     popular: true,
     mobileOrder: 1
   },
@@ -62,9 +64,10 @@ const pricingTiers = [
       "Complete profile makeover",
       "Bio optimization",
       "Message templates",
-      "Private and secure"
+      "Private and secure",
+      "Free revisions until satisfied"
     ],
-    buttonText: "Make my profile irresistible",
+    buttonText: "Make me date-ready",
     popular: false,
     mobileOrder: 3
   }
@@ -134,13 +137,7 @@ export const PricingSection = () => {
                     <span className="text-white font-semibold">Most users see</span>
                   </div>
                   <span className="text-2xl font-bold text-[#FFD700]">3x more attention</span>
-                  <span className="text-gray-300">in 7 days</span>
-                </div>
-                <div className="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm border border-green-500/30 rounded-2xl px-6 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold">💯 Money-back guarantee</span>
-                  </div>
-                  <span className="text-green-400 font-bold">Contact within 7 days</span>
+                  <span className="text-gray-300">in 24 hours</span>
                 </div>
               </div>
             </div>
@@ -152,19 +149,30 @@ export const PricingSection = () => {
               .map((tier) => (
                 <Card
                   key={tier.name}
-                  className={`relative group transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col h-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/8 hover:border-[#FFD700]/30 hover:shadow-[#FFD700]/20 ${localSelectedPackage === tier.id
+                  className={`relative group transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer flex flex-col h-full backdrop-blur-sm hover:bg-white/8 hover:border-[#FFD700]/30 hover:shadow-[#FFD700]/20 ${localSelectedPackage === tier.id
                     ? "border-2 border-[#FFD700] shadow-lg shadow-[#FFD700]/30"
                     : "border border-white/10 shadow-sm"
-                    } ${tier.mobileOrder === 1 ? 'order-1 md:order-none' : tier.mobileOrder === 2 ? 'order-2 md:order-none' : tier.mobileOrder === 3 ? 'order-3 md:order-none' : 'order-4 md:order-none'}`}
+                    } ${tier.mobileOrder === 1 ? 'order-1 md:order-none' : tier.mobileOrder === 2 ? 'order-2 md:order-none' : tier.mobileOrder === 3 ? 'order-3 md:order-none' : 'order-4 md:order-none'} ${tier.id === "most-matches"
+                      ? "bg-gradient-to-br from-[#FFD700]/10 via-white/8 to-[#FFD700]/5 border-2 border-[#FFD700]/40 shadow-lg shadow-[#FFD700]/20 scale-105"
+                      : "bg-white/5"
+                    }`}
                   role="article"
                   aria-label={`${tier.name} pricing plan`}
                   onClick={() => handlePackageSelect(tier.id)}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-4 py-1.5 font-medium">
+                    <Badge className={`px-4 py-1.5 font-medium ${tier.id === "most-matches"
+                      ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black shadow-lg shadow-[#FFD700]/50 animate-pulse"
+                      : "bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black"
+                      }`}>
                       {tier.discount}
                     </Badge>
                   </div>
+
+                  {/* Special glow effect for the highlighted card */}
+                  {tier.id === "most-matches" && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700]/20 via-transparent to-[#FFD700]/20 rounded-lg blur-xl opacity-50"></div>
+                  )}
 
                   <CardHeader className="text-center pb-2 h-48 flex flex-col justify-center items-center">
                     <div>
@@ -209,39 +217,51 @@ export const PricingSection = () => {
                       ))}
                     </ul>
 
-                    {tier.id === "most-matches" ? (
-                      <div className="mt-auto">
-                        <Link href="/checkout">
-                          <button
-                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
-                            onClick={() => {
-                              console.log('Pricing CTA clicked - redirecting to checkout!');
-                              setSelectedPackage(tier);
-                              localStorage.setItem('selectedPackage', tier.id);
-                              trackCTAClick("Make My Profile Irresistible", "Pricing Section");
-                            }}
-                          >
-                            Make my profile irresistible
-                          </button>
-                        </Link>
-                      </div>
-                    ) : (
-                      <div className="mt-auto">
-                        <Link href="/checkout">
-                          <button
-                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white"
-                            onClick={() => {
-                              console.log('Pricing CTA 2 clicked - redirecting to checkout!');
-                              setSelectedPackage(tier);
-                              localStorage.setItem('selectedPackage', tier.id);
-                              trackCTAClick("Make My Profile Irresistible", "Pricing Section 2");
-                            }}
-                          >
-                            Make my profile irresistible
-                          </button>
-                        </Link>
-                      </div>
-                    )}
+                    <div className="mt-auto">
+                      <Link href="/checkout">
+                        <button
+                          className={`w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-300 backdrop-blur-sm text-white hover:bg-white/10 hover:border-[#FFD700] hover:text-white ${tier.id === "most-matches"
+                            ? "relative bg-white/5 border border-white/20 hover:bg-white/10 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#FFD700]/20 overflow-hidden group"
+                            : "bg-white/5"
+                            }`}
+                          onClick={() => {
+                            console.log('Pricing CTA clicked - redirecting to checkout!');
+                            setSelectedPackage(tier);
+                            localStorage.setItem('selectedPackage', tier.id);
+                            trackCTAClick(tier.buttonText, "Pricing Section");
+                          }}
+                        >
+                          {tier.id === "most-matches" ? (
+                            <>
+                              {/* Glass morphism background with flowing colors */}
+                              <div className="absolute inset-0 rounded-lg overflow-hidden">
+                                {/* Gold wave from left */}
+                                <div className="absolute top-0 left-0 w-full h-full">
+                                  <div className="w-full h-full bg-gradient-to-r from-[#FFD700]/60 via-[#FFD700]/40 to-transparent opacity-90"
+                                    style={{
+                                      animation: 'flowingWaveLeft 3s ease-in-out infinite'
+                                    }}>
+                                  </div>
+                                </div>
+
+                                {/* Pink wave from right */}
+                                <div className="absolute top-0 right-0 w-full h-full">
+                                  <div className="w-full h-full bg-gradient-to-l from-[#FF69B4]/60 via-[#FF69B4]/40 to-transparent opacity-90"
+                                    style={{
+                                      animation: 'flowingWaveRight 3s ease-in-out infinite'
+                                    }}>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <span className="relative z-20 text-white font-bold drop-shadow-lg">{tier.buttonText}</span>
+                            </>
+                          ) : (
+                            tier.buttonText
+                          )}
+                        </button>
+                      </Link>
+                    </div>
                     {/* Temporarily disabled SignedIn section */}
                   </CardContent>
                 </Card>

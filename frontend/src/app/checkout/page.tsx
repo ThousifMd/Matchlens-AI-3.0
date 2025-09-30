@@ -226,8 +226,8 @@ function TrustBadges() {
           <span>SSL Secured</span>
         </div>
         <div className="flex items-center space-x-2">
-          <RotateCcw className="w-4 h-4 text-[#d4ae36]" />
-          <span>Money Back Guarantee</span>
+          <RotateCcw className="w-4 h-4 text-red-400" />
+          <span>No Refunds - All Sales Final</span>
         </div>
       </div>
 

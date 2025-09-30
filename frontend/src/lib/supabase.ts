@@ -9,8 +9,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-    const isConfigured = supabaseUrl && 
-        supabaseAnonKey && 
+    const isConfigured = supabaseUrl &&
+        supabaseAnonKey &&
         supabaseUrl !== 'https://placeholder.supabase.co' &&
         supabaseAnonKey !== 'placeholder-key' &&
         supabaseUrl !== 'YOUR_SUPABASE_URL' &&
@@ -67,6 +67,11 @@ export interface OnboardingData {
     current_dating_apps: string[]
     bio: string
     interests: string[]
+    // New Step 3 fields
+    ideal_first_date?: string
+    date_outfit?: string
+    photo_aesthetic?: string
+    confident_place?: string
     photos: string[]
     bio_screenshots: string[]
     additional_info?: string

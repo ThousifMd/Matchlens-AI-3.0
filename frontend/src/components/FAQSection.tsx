@@ -24,7 +24,7 @@ const faqData: FAQItem[] = [
     },
     {
         question: "What exactly do I get?",
-        answer: "25-100 enhanced photos (depending on package), optimized bio tailored to your goals, profile strategy guide, and first message templates."
+        answer: "5-20 enhanced photos (depending on package), optimized bio tailored to your goals, profile strategy guide, and first message templates."
     },
     {
         question: "Is my data safe?",

@@ -25,13 +25,18 @@ interface OnboardingData {
   stylePreference: string;
   ethnicity: string;
   interests: string[];
+  // New fields for step 3
+  idealFirstDate: string;
+  dateOutfit: string;
+  photoAesthetic: string;
+  confidentPlace: string;
   photos: File[];
   screenshots: File[];
   currentBio: string;
   email: string;
   confirmEmail: string;
   phone: string;
-  // New fields for step 5
+  // New fields for step 6 (formerly step 5)
   vibe: string;
   wantMore: string;
   oneLiner: string;
@@ -112,6 +117,31 @@ const interestOptions = [
   { value: "art", label: "Art", icon: BookOpen }
 ];
 
+const dateOutfitOptions = [
+  { value: "clean-casual", label: "Clean Casual", description: "Fitted jeans, plain tee/henley, sneakers" },
+  { value: "smart-casual", label: "Smart Casual", description: "Button-up or polo, chinos, boots/loafers" },
+  { value: "streetwear", label: "Streetwear", description: "Joggers, hoodie/jacket, fresh sneakers" },
+  { value: "rugged-outdoorsy", label: "Rugged/Outdoorsy", description: "Flannel, jeans, boots" },
+  { value: "athletic-casual", label: "Athletic Casual", description: "Joggers, fitted athletic top, clean trainers" }
+];
+
+const photoAestheticOptions = [
+  { value: "bright-natural", label: "Bright & Natural", description: "Daylight, candid, warm tones" },
+  { value: "golden-hour", label: "Golden Hour Glow", description: "Sunset/sunrise, cinematic, warm" },
+  { value: "moody-cool", label: "Moody & Cool", description: "Evening, darker tones, dramatic" },
+  { value: "clean-modern", label: "Clean & Modern", description: "Minimalist, good lighting, sharp" }
+];
+
+const confidentPlaceOptions = [
+  { value: "beach-water", label: "Beach/Water" },
+  { value: "mountains-nature", label: "Mountains/Nature" },
+  { value: "city-urban", label: "City/Urban streets" },
+  { value: "gym-active", label: "Gym/Active spaces" },
+  { value: "coffee-casual", label: "Coffee shops/Casual venues" },
+  { value: "home-indoor", label: "Home/Indoor settings" },
+  { value: "nightlife-bars", label: "Nightlife/Bars" }
+];
+
 const goodExamples = [
   {
     src: "/images/selfie_1.jpg",
@@ -168,6 +198,10 @@ function OnboardingContent() {
     stylePreference: "",
     ethnicity: "",
     interests: [],
+    idealFirstDate: "",
+    dateOutfit: "",
+    photoAesthetic: "",
+    confidentPlace: "",
     photos: [],
     screenshots: [],
     currentBio: "",
@@ -308,7 +342,7 @@ function OnboardingContent() {
     return null;
   }
 
-  const totalSteps = 5;
+  const totalSteps = 6;
   const progress = (currentStep / totalSteps) * 100;
 
   const isStep1Valid = (formData.name || "").trim() !== "" &&
@@ -321,7 +355,9 @@ function OnboardingContent() {
     formData.ethnicity !== "" &&
     formData.interests.length === 3;
 
-  const isStep3Valid = formData.photos.length >= 10;
+  const isStep3Valid = formData.idealFirstDate && formData.dateOutfit && formData.photoAesthetic && formData.confidentPlace;
+
+  const isStep4Valid = formData.photos.length >= 10;
 
   // Email validation function
   const isValidEmail = (email: string) => {
@@ -376,7 +412,9 @@ function OnboardingContent() {
     return true;
   };
 
-  const isStep5Valid = (formData.email || "").trim() !== "" &&
+  const isStep5Valid = true; // Screenshot upload is optional
+
+  const isStep6Valid = (formData.email || "").trim() !== "" &&
     isValidEmail(formData.email || "") &&
     (formData.confirmEmail || "").trim() !== "" &&
     formData.confirmEmail === formData.email &&
@@ -397,21 +435,26 @@ function OnboardingContent() {
       // Scroll to top when moving to next step
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 2 && isStep2Valid) {
-      trackFormStep(2, "Photo Upload");
+      trackFormStep(2, "Preferences");
       setCurrentStep(3);
       // Scroll to top when moving to next step
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (currentStep === 3 && isStep3Valid) {
-      trackFormStep(3, "Screenshot Upload");
+      trackFormStep(3, "Style & Preferences");
       setCurrentStep(4);
       // Scroll to top when moving to next step
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (currentStep === 4) {
-      trackFormStep(4, "Bio and Preferences");
+    } else if (currentStep === 5) {
+      trackFormStep(5, "Screenshot Upload");
+      setCurrentStep(6);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (currentStep === 4 && isStep4Valid) {
+      trackFormStep(4, "Photo Upload");
       setCurrentStep(5);
       // Scroll to top when moving to next step
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (currentStep === 5 && isStep5Valid) {
+    } else if (currentStep === 6 && isStep6Valid) {
       setIsSubmitting(true);
       console.log('🚀 Starting form submission...');
 
@@ -442,6 +485,11 @@ function OnboardingContent() {
           current_dating_apps: [formData.stylePreference || ''], // Convert to array
           bio: formData.currentBio,
           interests: formData.interests, // Keep as array
+          // New Step 3 fields
+          ideal_first_date: formData.idealFirstDate,
+          date_outfit: formData.dateOutfit,
+          photo_aesthetic: formData.photoAesthetic,
+          confident_place: formData.confidentPlace,
           photos: [], // Will be populated with uploaded URLs
           bio_screenshots: [], // Will be populated with uploaded URLs
           additional_info: `Vibe: ${formData.vibe}, Want More: ${formData.wantMore}, One Liner: ${formData.oneLiner}`
@@ -495,8 +543,8 @@ function OnboardingContent() {
   };
 
 
-  const handleSkipStep4 = () => {
-    setCurrentStep(5);
+  const handleSkipStep5 = () => {
+    setCurrentStep(6);
     // Scroll to top when skipping step
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -691,11 +739,11 @@ function OnboardingContent() {
               <span className="text-xs font-medium text-white whitespace-nowrap">
                 Step {currentStep} of {totalSteps}
               </span>
-              {currentStep === 4 && (
+              {currentStep === 5 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleSkipStep4}
+                  onClick={handleSkipStep5}
                   className="text-white hover:text-white text-xs whitespace-nowrap"
                 >
                   Skip
@@ -709,7 +757,7 @@ function OnboardingContent() {
 
       {/* Main Content */}
       <div className="flex items-center justify-center min-h-[calc(100vh-120px)] p-4 relative z-10">
-        {currentStep === 5 ? (
+        {currentStep === 6 ? (
           <Card className="w-full max-w-2xl mx-4 bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl hover:bg-white/8 hover:border-white/20 transition-all duration-300 ease-out">
             <CardHeader className="text-center space-y-2 pb-6">
               <CardTitle className="text-3xl font-bold text-white">
@@ -898,16 +946,16 @@ function OnboardingContent() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (isStep5Valid && !isSubmitting) {
+                    if (isStep6Valid && !isSubmitting) {
                       handleContinue();
                     }
                   }}
-                  disabled={!isStep5Valid || isSubmitting}
-                  className="w-full h-12 bg-[#FFD700] hover:bg-[#d4ae36] disabled:bg-gray-700 disabled:text-gray-400 text-black text-lg font-medium transition-all duration-200 cursor-pointer"
+                  disabled={!isStep6Valid || isSubmitting}
+                  className="w-full h-12 bg-[#FFD700] hover:bg-[#d4ae36] disabled:bg-gray-700 disabled:text-gray-400 text-white text-lg font-medium transition-all duration-200 cursor-pointer"
                   type="button"
                 >
                   {isSubmitting ? "Processing..." :
-                    isStep5Valid ? "➡️ Next → Build My Profile" :
+                    isStep6Valid ? "➡️ Next → Build My Profile" :
                       emailError ? "Please fix email errors" :
                         confirmEmailError ? "Please fix email confirmation errors" :
                           phoneError ? "Please fix phone number errors" :
@@ -916,20 +964,59 @@ function OnboardingContent() {
                 </Button>
               </div>
 
+              {/* Progress Slider - Show when submitting */}
+              {isSubmitting && (
+                <div className="pt-4">
+                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-6">
+                    <div className="text-center space-y-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FFD700]"></div>
+                        <span className="text-white font-semibold">Creating your perfect profile...</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Progress
+                          value={75}
+                          className="w-full h-2 bg-white/10"
+                        />
+                        <p className="text-sm text-gray-400">
+                          Processing your photos and preferences • This usually takes 30-60 seconds
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-xs text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3 text-green-400" />
+                          <span>Photos uploaded</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="animate-pulse rounded-full h-3 w-3 bg-[#FFD700]"></div>
+                          <span>AI processing</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="rounded-full h-3 w-3 bg-gray-600"></div>
+                          <span>Finalizing</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Privacy Note */}
               <div className="text-center text-xs text-gray-400 bg-gray-800 p-3 rounded-lg">
                 🔒 Your information is secure and will only be used to deliver your photos and send updates you've requested
               </div>
             </CardContent>
           </Card>
-        ) : currentStep === 4 ? (
+        ) : currentStep === 5 ? (
           <Card className="w-full max-w-4xl mx-4 bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl hover:bg-white/8 hover:border-white/20 transition-all duration-300 ease-out">
             <CardHeader className="text-center space-y-2 pb-6">
               <CardTitle className="text-3xl font-bold text-white">
                 Share Your Current Profile (Optional but Recommended)
               </CardTitle>
               <CardDescription className="text-lg text-gray-300">
-                This helps us improve what's not working
+                Upload your current dating photos and profile screenshots to help us improve what's not working
               </CardDescription>
 
               {/* Value Proposition */}
@@ -964,7 +1051,7 @@ function OnboardingContent() {
                 <div className="flex items-center gap-2">
                   <Smartphone className="h-5 w-5 text-white" />
                   <h3 className="text-lg font-semibold text-white">
-                    Share your current profile photos
+                    Share your current dating photos & profile screenshots
                   </h3>
                   <span className="text-sm text-gray-400">(Optional)</span>
                 </div>
@@ -980,12 +1067,6 @@ function OnboardingContent() {
                   onDrop={handleScreenshotDrop}
                 >
                   <Smartphone className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                  <h4 className="text-md font-semibold text-white mb-2">
-                    Drop screenshots here or click to browse
-                  </h4>
-                  <p className="text-gray-300 mb-4 text-sm">
-                    Upload screenshots of your current profile, photos, or matches
-                  </p>
                   <input
                     type="file"
                     multiple
@@ -1002,7 +1083,7 @@ function OnboardingContent() {
                   >
                     <label htmlFor="screenshot-upload" className="cursor-pointer">
                       <Camera className="h-4 w-4 mr-2" />
-                      Choose Screenshots
+                      Choose Photos & Screenshots
                     </label>
                   </Button>
                 </div>
@@ -1070,14 +1151,14 @@ function OnboardingContent() {
                 {/* Continue Button */}
                 <Button
                   onClick={handleContinue}
-                  className="flex-1 h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] text-black text-lg font-medium transition-all duration-200"
+                  className="flex-1 h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] text-white text-lg font-medium transition-all duration-200"
                 >
                   Continue to Final Step
                 </Button>
 
                 {/* Skip Button - More Prominent */}
                 <Button
-                  onClick={handleSkipStep4}
+                  onClick={handleSkipStep5}
                   variant="outline"
                   className="flex-1 h-12 border-2 border-white/20 hover:border-[#d4ae36] text-white hover:text-white text-sm font-medium transition-all duration-200"
                 >
@@ -1094,6 +1175,136 @@ function OnboardingContent() {
             </CardContent>
           </Card>
         ) : currentStep === 3 ? (
+          <div className="w-full max-w-4xl mx-4">
+            <div className="text-center space-y-2 mb-8">
+              <h1 className="text-3xl font-bold text-white">
+                Style & Preferences
+              </h1>
+              <p className="text-lg text-gray-300">
+                Help us understand your dating style and photo preferences
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              {/* Question 1: Ideal First Date */}
+              <Card className="border-2 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">Describe your ideal first date in one sentence</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    This reveals your setting, activity, mood, and personality preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="e.g., 'Grabbing coffee and walking through a local market' or 'Sunset hike followed by beers at a brewery'"
+                    value={formData.idealFirstDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, idealFirstDate: e.target.value }))}
+                    className="min-h-[100px] bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Question 2: Date Outfit */}
+              <Card className="border-2 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">What would you wear on a date you're actually excited about?</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Pick your go-to fit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {dateOutfitOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.dateOutfit === option.value
+                          ? 'border-[#d4ae36] bg-[#d4ae36]/10'
+                          : 'border-white/20 hover:border-white/40'
+                          }`}
+                        onClick={() => setFormData(prev => ({ ...prev, dateOutfit: option.value }))}
+                      >
+                        <h3 className="font-semibold text-white mb-2">{option.label}</h3>
+                        <p className="text-sm text-gray-400">{option.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {formData.dateOutfit === 'other' && (
+                    <div className="mt-4">
+                      <Input
+                        placeholder="Describe your unique style..."
+                        className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Question 3: Photo Aesthetic */}
+              <Card className="border-2 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">Pick your photo aesthetic</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Choose the mood and style that represents you best
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {photoAestheticOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${formData.photoAesthetic === option.value
+                          ? 'border-[#d4ae36] bg-[#d4ae36]/10'
+                          : 'border-white/20 hover:border-white/40'
+                          }`}
+                        onClick={() => setFormData(prev => ({ ...prev, photoAesthetic: option.value }))}
+                      >
+                        <h3 className="font-semibold text-white mb-2">{option.label}</h3>
+                        <p className="text-sm text-gray-400">{option.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Question 4: Confident Place */}
+              <Card className="border-2 border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-xl text-white">Where do you feel most confident and like yourself?</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Pick your element
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {confidentPlaceOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`p-3 rounded-lg border-2 cursor-pointer transition-all text-center ${formData.confidentPlace === option.value
+                          ? 'border-[#d4ae36] bg-[#d4ae36]/10'
+                          : 'border-white/20 hover:border-white/40'
+                          }`}
+                        onClick={() => setFormData(prev => ({ ...prev, confidentPlace: option.value }))}
+                      >
+                        <span className="text-white font-medium">{option.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-8">
+              <Button
+                onClick={handleContinue}
+                disabled={!isStep3Valid}
+                className="flex-1 h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] text-white text-lg font-medium transition-all duration-200"
+              >
+                {isStep3Valid ? "Continue to Photo Upload" : "Complete all questions to continue"}
+              </Button>
+            </div>
+          </div>
+        ) : currentStep === 4 ? (
           <div className="w-full max-w-6xl mx-4">
             <div className="text-center space-y-2 mb-8">
               <h1 className="text-3xl font-bold text-white">
@@ -1124,7 +1335,7 @@ function OnboardingContent() {
             {/* Desktop: Two columns, Mobile: Stacked */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
               {/* Good Examples */}
-              <Card className="border-2 border-[#d4ae36]/20">
+              <Card className="border-2 border-[#d4ae36]">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-[#d4ae36]" />
@@ -1187,9 +1398,9 @@ function OnboardingContent() {
                       console.log('Photo guidelines button clicked!');
                       setShowGuidelines(true);
                     }}
-                    className="w-full h-12 bg-[#FFD700] text-black hover:bg-[#FFA500] font-semibold text-sm border-0 shadow-lg transition-all duration-200 hover:scale-105"
+                    className="w-full h-12 bg-[#FFD700] text-black hover:bg-[#FFA500] font-bold text-base border-0 shadow-lg transition-all duration-200"
                   >
-                    📸 Photo Quality Tips
+                    📸 Click here to get Photo Quality Tips
                   </Button>
                   <p className="text-center text-xs text-white/70 mt-2">
                     Get expert tips for better photos before uploading
@@ -1271,10 +1482,10 @@ function OnboardingContent() {
                 {/* Continue Button */}
                 <Button
                   onClick={handleContinue}
-                  disabled={!isStep3Valid}
-                  className="w-full h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] disabled:bg-gray-700 disabled:text-gray-400 text-black text-lg font-medium transition-all duration-200"
+                  disabled={!isStep4Valid}
+                  className="w-full h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] disabled:bg-gray-700 disabled:text-gray-400 text-white text-lg font-medium transition-all duration-200"
                 >
-                  {isStep3Valid ? "Continue" : `Upload ${10 - formData.photos.length} more photos to continue`}
+                  {isStep4Valid ? "Continue" : `Upload ${10 - formData.photos.length} more photos to continue`}
                 </Button>
               </CardContent>
             </Card>
@@ -1423,9 +1634,9 @@ function OnboardingContent() {
                 <Button
                   onClick={handleContinue}
                   disabled={!isStep2Valid}
-                  className="w-full h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] disabled:bg-gray-700 disabled:text-gray-400 text-black text-lg font-medium transition-all duration-200"
+                  className="w-full h-12 bg-[#d4ae36] hover:from-[#c19d2f] hover:via-[#e04a5f] hover:to-[#c19d2f] disabled:bg-gray-700 disabled:text-gray-400 text-white text-lg font-medium transition-all duration-200"
                 >
-                  Continue to Photo Upload
+                  Continue to Next Step
                 </Button>
               </div>
             </CardContent>
@@ -1594,26 +1805,50 @@ function OnboardingContent() {
       {showGuidelines && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white text-black p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">📸 Photo Quality Guidelines</h2>
+            <h2 className="text-2xl font-bold mb-4">📸 Photo Upload Instructions</h2>
             <div className="space-y-4">
-              <div className="bg-green-100 p-4 rounded">
-                <h3 className="font-bold text-green-800">✅ What Makes Great Photos:</h3>
-                <ul className="text-green-700 mt-2">
-                  <li>• Clear, well-lit face (natural lighting is best)</li>
-                  <li>• Single person in photo (no group shots)</li>
-                  <li>• Good resolution (not blurry or pixelated)</li>
-                  <li>• Natural expression and genuine smile</li>
-                  <li>• No sunglasses or hats covering your face</li>
+              <div className="bg-blue-100 p-4 rounded">
+                <h3 className="font-bold text-blue-800">📱 What We Need (12-20 photos total):</h3>
+                <ul className="text-blue-700 mt-2 space-y-1">
+                  <li>• <strong>10-15 quick phone selfies</strong> near a window, unfiltered, everyday clothes</li>
+                  <li>• <strong>Angles:</strong> straight on, slight ¾ left/right, and 1 side profile</li>
+                  <li>• <strong>Expression:</strong> neutral or closed-mouth smile</li>
+                  <li>• <strong>Lighting:</strong> daylight only (no colored/neon lights)</li>
+                  <li>• <strong>1 casual full-body</strong> photo (what you actually wear out)</li>
                 </ul>
               </div>
+
+              <div className="bg-green-100 p-4 rounded">
+                <h3 className="font-bold text-green-800">✅ Perfect Photo Checklist:</h3>
+                <ul className="text-green-700 mt-2 space-y-1">
+                  <li>• Clear, well-lit face (natural daylight)</li>
+                  <li>• Single person only (no group shots)</li>
+                  <li>• Good resolution (not blurry or pixelated)</li>
+                  <li>• No sunglasses, hats, or face coverings</li>
+                  <li>• No heavy filters or over-editing</li>
+                  <li>• Varied lighting and angles for best results</li>
+                </ul>
+              </div>
+
+              <div className="bg-yellow-100 p-4 rounded">
+                <h3 className="font-bold text-yellow-800">💡 Pro Tips for Better Results:</h3>
+                <ul className="text-yellow-700 mt-2 space-y-1">
+                  <li>• Tell us "stubble" or "clean" so we lock your look across the set</li>
+                  <li>• Include your 2 chosen styles from the list above</li>
+                  <li>• Mix of neutral expressions and soft smiles</li>
+                  <li>• Balance: 40% neutral close-ups, 20% soft-smile, 20% candid mid-shots, 20% full-body</li>
+                </ul>
+              </div>
+
               <div className="bg-red-100 p-4 rounded">
-                <h3 className="font-bold text-red-800">❌ Avoid These:</h3>
-                <ul className="text-red-700 mt-2">
+                <h3 className="font-bold text-red-800">❌ What We Can't Use:</h3>
+                <ul className="text-red-700 mt-2 space-y-1">
                   <li>• Group photos with other people</li>
                   <li>• Dark, blurry, or low-quality images</li>
-                  <li>• Sunglasses, hats, or anything covering your face</li>
+                  <li>• Sunglasses, hats, or face obstructions</li>
                   <li>• Heavy filters or over-edited photos</li>
                   <li>• Screenshots or photos of photos</li>
+                  <li>• Colored or neon lighting</li>
                 </ul>
               </div>
             </div>

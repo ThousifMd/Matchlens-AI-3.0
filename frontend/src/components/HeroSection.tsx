@@ -28,17 +28,24 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
     >
       {/* Hero Content */}
       <div className="text-center md:text-left mb-8 md:mb-12">
-        <h1 className="font-heading font-extrabold tracking-tight text-[28px] leading-[1.1] md:text-[36px] lg:text-[56px] md:leading-[1.05] text-white mb-4 md:mb-6">
-          Do you know that <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">85%</span> of women swipe<br />
-          right on only <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">5%</span> of men?
+        <h1 className="font-heading font-extrabold tracking-tight text-[28px] leading-[1.1] md:text-[36px] lg:text-[56px] md:leading-[1.05] text-white mb-6 md:mb-8">
+          Get <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">3X</span> more matches in <span className="text-[#FFD700] text-[32px] md:text-[42px] lg:text-[68px]">24 hours</span>
         </h1>
 
+        {/* Supporting Statistics */}
+        <div className="mb-6 md:mb-6">
+          <p className="text-base md:text-lg text-white/70 italic">
+            Did you know? <span className="text-[#FFD700] font-semibold">85%</span> of women swipe right on only <span className="text-[#FFD700] font-semibold">5%</span> of men
+          </p>
+        </div>
+
+        {/* Value Proposition */}
         <p className="text-lg md:text-xl text-white max-w-3xl mb-8 md:mb-8 leading-relaxed mx-auto md:mx-0 px-4 md:px-0">
           <span className="md:hidden block space-y-4">
             <span className="block text-[#d4ae36] font-bold">Your photos are holding you back – <span className="font-semibold">not you</span>.</span>
-            <span className="block">We create <span className="font-semibold">ultra-realistic photos</span> that make you <span className="font-semibold">impossible to ignore</span>. Get <span className="font-semibold">3X more connections</span> in <span className="font-semibold">24 hours</span>.</span>
+            <span className="block">We create <span className="font-semibold">ultra-realistic photos</span> that make you <span className="font-semibold">impossible to ignore</span>.</span>
           </span>
-          <span className="hidden md:inline">Your photos are holding you back – not you. We create ultra-realistic photos that make you impossible to ignore. Get 3X more connections in 24 hours.</span>
+          <span className="hidden md:inline">Your photos are holding you back – not you. We create ultra-realistic photos that make you impossible to ignore.</span>
         </p>
 
         {/* CTA Button */}

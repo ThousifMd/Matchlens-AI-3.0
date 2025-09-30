@@ -63,9 +63,9 @@ export default function PrivacyPage() {
                                 Our services are not intended for users under 18. We do not knowingly collect information from minors.
                             </p>
 
-                            <h2 className="text-2xl font-bold text-white mb-4">9. Refund Policy & Money-Back Guarantee</h2>
+                            <h2 className="text-2xl font-bold text-white mb-4">9. No Refund Policy</h2>
                             <p className="text-white/90 mb-6">
-                                We offer a <span className="text-[#FFD700] font-bold">100% money-back guarantee</span> on all our services. If you're not satisfied with the results, you must contact us within <span className="text-[#FFD700] font-bold">7 days</span> of service delivery to request a refund. Refunds will be processed within 5-7 business days after approval. The guarantee covers the quality of our photo enhancement and profile optimization services.
+                                All sales are final. We do not offer refunds, exchanges, or money-back guarantees on any of our services. Once payment is processed and services are delivered, no refunds will be provided under any circumstances. By purchasing our services, you acknowledge and agree to this no-refund policy.
                             </p>
 
                             <h2 className="text-2xl font-bold text-white mb-4">10. International Users</h2>
