@@ -239,7 +239,9 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                         firstName: formDataToUse?.name?.split(' ')[0],
                         lastName: formDataToUse?.name?.split(' ').slice(1).join(' '),
                         city: formDataToUse?.location,
-                        country: 'US' // Default to US, can be made dynamic
+                        state: 'CA', // Add state data
+                        zipCode: '90210', // Add zip code
+                        country: 'US' // Always include country
                     },
                     eventSourceUrl: window.location.href
                 });
