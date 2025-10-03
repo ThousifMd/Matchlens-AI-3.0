@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { storePaymentData, storeOnboardingData, uploadFile, sanitizeFilename } from "@/lib/supabaseUtils";
 import { sendConfirmationEmail, getExpectedDelivery } from "@/lib/email";
+import { trackPurchaseComplete } from "@/lib/metaPixel";
 
 // Custom styles for PayPal buttons
 const paypalStyles = `
@@ -71,8 +72,8 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
     const storePaymentAndOnboarding = async (paymentDetails: any) => {
         try {
-            // Use actual package price
-            const actualAmountPaid = selectedPackage?.price?.toString() || "0.00";
+            // HARDCODED FOR TESTING: Always use $1.00
+            const actualAmountPaid = "1.00";
 
             // Use passed form data or fallback to localStorage
             let formDataToUse = onboardingFormData;
@@ -224,6 +225,37 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
             localStorage.setItem('paymentCompleted', 'true');
             localStorage.setItem('lastPaymentId', paymentResult.data?.payment_id || ''); // Store payment_id for onboarding
 
+            // Send Meta Pixel and CAPI events for purchase tracking
+            try {
+                const trackingResult = await trackPurchaseComplete({
+                    orderId: paymentDetails.id,
+                    value: 1.00, // HARDCODED FOR TESTING
+                    currency: 'USD',
+                    packageName: selectedPackage?.name || 'Matchlens Package (TEST)',
+                    packageId: selectedPackage?.id,
+                    userInfo: {
+                        email: formDataToUse?.email,
+                        phone: formDataToUse?.phone,
+                        firstName: formDataToUse?.name?.split(' ')[0],
+                        lastName: formDataToUse?.name?.split(' ').slice(1).join(' '),
+                        city: formDataToUse?.location,
+                        country: 'US' // Default to US, can be made dynamic
+                    },
+                    eventSourceUrl: window.location.href
+                });
+
+                if (trackingResult.pixelSuccess && trackingResult.capiSuccess) {
+                    console.log('✅ Meta tracking successful: Both Pixel and CAPI events sent');
+                } else if (trackingResult.pixelSuccess || trackingResult.capiSuccess) {
+                    console.log('⚠️ Meta tracking partial success:', trackingResult.errors);
+                } else {
+                    console.log('❌ Meta tracking failed:', trackingResult.errors);
+                }
+            } catch (trackingError) {
+                console.error('❌ Error sending Meta tracking events:', trackingError);
+                // Don't fail the payment process if tracking fails
+            }
+
             // Clear stored data after successful payment
             localStorage.removeItem('onboardingFormData');
             if (typeof window !== 'undefined') {
@@ -285,9 +317,10 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                                 <PayPalButtons
                                     createOrder={async (data, actions) => {
                                         try {
-                                            const amount = selectedPackage?.price?.toString() || "0.00";
+                                            // HARDCODED FOR TESTING: Always use $1.00
+                                            const amount = "1.00";
                                             console.log('🔄 Creating PayPal order directly...');
-                                            console.log('📦 Package data:', { selectedPackage, amount });
+                                            console.log('📦 Package data:', { selectedPackage, amount: amount + ' (TESTING MODE)' });
 
                                             // Create order directly using PayPal's actions.order.create()
                                             const order = await actions.order.create({
