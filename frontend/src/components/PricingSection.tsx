@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Shield } from "lucide-react";
 import { usePackage, Package } from "@/contexts/PackageContext";
-import { trackAddToCart, trackCTAClick } from "@/lib/metaPixel";
+import { trackAddToCart, trackCTAClick, trackInitiateCheckout } from "@/lib/metaPixel";
 
 
 const pricingTiers = [
