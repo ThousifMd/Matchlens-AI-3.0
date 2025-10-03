@@ -431,6 +431,8 @@ function OnboardingContent() {
 
     if (currentStep === 1 && isStep1Valid) {
       trackFormStep(1, "Basic Information");
+      // Track onboarding start
+      trackInitiateCheckout("Onboarding Start");
       setCurrentStep(2);
       // Scroll to top when moving to next step
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -458,7 +460,7 @@ function OnboardingContent() {
       setIsSubmitting(true);
       console.log('🚀 Starting form submission...');
 
-      // Track form completion
+      // Track onboarding completion
       trackCompleteRegistration({
         name: formData.name,
         age: formData.age,
@@ -467,7 +469,9 @@ function OnboardingContent() {
         screenshot_count: formData.screenshots.length,
         vibe: formData.vibe,
         want_more: formData.wantMore,
-        one_liner: formData.oneLiner
+        one_liner: formData.oneLiner,
+        content_name: "Onboarding Profile Creation",
+        content_category: "onboarding_completion"
       });
 
       // Submit form data and images to Supabase

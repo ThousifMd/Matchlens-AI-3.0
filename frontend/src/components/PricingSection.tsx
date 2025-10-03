@@ -91,8 +91,8 @@ export const PricingSection = () => {
   const handleGetStarted = (packageId: string) => {
     const packageData = pricingTiers.find(tier => tier.id === packageId);
     if (packageData) {
-      // Track CTA click
-      trackCTAClick(`Get Started - ${packageData.name}`, "Pricing Section");
+      // Track specific pricing page action
+      trackInitiateCheckout(`Pricing - ${packageData.name}`);
       // Set global selection
       setSelectedPackage(packageData);
       // Store selected package in localStorage for payment page
