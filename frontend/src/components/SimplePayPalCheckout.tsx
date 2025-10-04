@@ -52,6 +52,20 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
     const [isPayPalLoaded, setIsPayPalLoaded] = useState(false);
     const [payPalError, setPayPalError] = useState<string | null>(null);
 
+    // Validate that a package is selected
+    if (!selectedPackage || !selectedPackage.price) {
+        return (
+            <div className="w-full max-w-2xl mx-auto p-6">
+                <div className="text-center p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <h3 className="text-xl font-bold text-red-400 mb-2">No Package Selected</h3>
+                    <p className="text-red-300 text-sm">
+                        Please select a package before proceeding to payment.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     // Debug: Check if PayPal client ID is available
     useEffect(() => {
         console.log('PayPal Client ID:', process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID);
@@ -72,8 +86,12 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
 
     const storePaymentAndOnboarding = async (paymentDetails: any) => {
         try {
-            // HARDCODED FOR TESTING: Always use $1.00
-            const actualAmountPaid = "1.00";
+            // Ensure a package is selected
+            if (!selectedPackage || !selectedPackage.price) {
+                throw new Error("No package selected or invalid package price");
+            }
+
+            const actualAmountPaid = selectedPackage.price.toString();
 
             // Use passed form data or fallback to localStorage
             let formDataToUse = onboardingFormData;
@@ -168,7 +186,7 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                 paypal_transaction_id: paymentDetails.purchase_units?.[0]?.payments?.captures?.[0]?.id || '',
                 amount: parseFloat(actualAmountPaid), // Use the actual amount paid
                 currency: 'USD',
-                pricing_option: selectedPackage?.name || 'Payment',
+                pricing_option: selectedPackage.name,
                 status: 'completed',
                 payment_method: 'paypal',
                 payer_email: formDataToUse?.email || '',
@@ -229,10 +247,10 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
             try {
                 const trackingResult = await trackPurchaseComplete({
                     orderId: paymentDetails.id,
-                    value: 1.00, // HARDCODED FOR TESTING
+                    value: selectedPackage.price, // Use actual package price
                     currency: 'USD',
-                    packageName: selectedPackage?.name || 'Matchlens Package (TEST)',
-                    packageId: selectedPackage?.id,
+                    packageName: selectedPackage.name,
+                    packageId: selectedPackage.id,
                     userInfo: {
                         email: formDataToUse?.email,
                         phone: formDataToUse?.phone,
@@ -290,7 +308,7 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
         <div className="w-full max-w-2xl mx-auto p-6">
             <h2 className="text-2xl font-bold mb-2 text-center text-white">Complete Your Order</h2>
             <p className="text-white/70 mb-6 text-center">
-                {selectedPackage ? `${selectedPackage.name}: $${selectedPackage.price}` : 'Payment'}
+                {selectedPackage.name}: ${selectedPackage.price}
             </p>
 
             {/* PayPal Integration */}
@@ -319,10 +337,14 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                                 <PayPalButtons
                                     createOrder={async (data, actions) => {
                                         try {
-                                            // HARDCODED FOR TESTING: Always use $1.00
-                                            const amount = "1.00";
+                                            // Ensure a package is selected
+                                            if (!selectedPackage || !selectedPackage.price) {
+                                                throw new Error("No package selected or invalid package price");
+                                            }
+
+                                            const amount = selectedPackage.price.toString();
                                             console.log('🔄 Creating PayPal order directly...');
-                                            console.log('📦 Package data:', { selectedPackage, amount: amount + ' (TESTING MODE)' });
+                                            console.log('📦 Package data:', { selectedPackage, amount: amount });
 
                                             // Create order directly using PayPal's actions.order.create()
                                             const order = await actions.order.create({
@@ -331,8 +353,8 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
                                                         currency_code: "USD",
                                                         value: amount
                                                     },
-                                                    description: selectedPackage?.name || "Payment",
-                                                    custom_id: selectedPackage?.id || "payment"
+                                                    description: selectedPackage.name,
+                                                    custom_id: selectedPackage.id
                                                 }],
                                                 intent: "CAPTURE"
                                             });

@@ -46,7 +46,7 @@ const datingGoals = [
   { value: "casual", label: "Casual Dating" },
   { value: "relationship", label: "Relationship" },
   { value: "marriage", label: "Marriage" },
-  { value: "hookup", label: "Hookup" }
+  { value: "friendship", label: "Friendship" }
 ];
 
 const matchOptions = [
@@ -1856,19 +1856,13 @@ function OnboardingContent() {
                 </ul>
               </div>
             </div>
-            <div className="flex gap-4 mt-6">
-              <button
-                onClick={() => setShowGuidelines(false)}
-                className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
+            <div className="flex justify-center mt-6">
               <button
                 onClick={() => {
                   setShowGuidelines(false);
                   console.log('Modal closed, ready to upload!');
                 }}
-                className="flex-1 bg-[#FFD700] text-black py-2 px-4 rounded hover:bg-[#FFD700]/90 font-bold"
+                className="w-full max-w-xs bg-[#FFD700] text-black py-2 px-4 rounded hover:bg-[#FFD700]/90 font-bold"
               >
                 Got it, let's upload!
               </button>

@@ -100,7 +100,7 @@ export default function HeroSection({ ctaHref, className }: HeroSectionProps) {
 
         {/* Trust Indicators */}
         <div className="flex items-center justify-center md:justify-start gap-2 text-xs md:text-sm text-white mb-4">
-          <span>⚡ 2,847+ transformed</span>
+          <span>⚡ Human + AI Concierge Service</span>
           <span>•</span>
           <span>🔒 Military-grade privacy</span>
           <span>•</span>
