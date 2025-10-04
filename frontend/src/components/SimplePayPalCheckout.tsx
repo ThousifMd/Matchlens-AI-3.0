@@ -52,20 +52,6 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
     const [isPayPalLoaded, setIsPayPalLoaded] = useState(false);
     const [payPalError, setPayPalError] = useState<string | null>(null);
 
-    // Validate that a package is selected
-    if (!selectedPackage || !selectedPackage.price) {
-        return (
-            <div className="w-full max-w-2xl mx-auto p-6">
-                <div className="text-center p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <h3 className="text-xl font-bold text-red-400 mb-2">No Package Selected</h3>
-                    <p className="text-red-300 text-sm">
-                        Please select a package before proceeding to payment.
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
     // Debug: Check if PayPal client ID is available
     useEffect(() => {
         console.log('PayPal Client ID:', process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID);
@@ -303,6 +289,20 @@ export default function SimplePayPalCheckout({ selectedPackage, showNotification
             handleStartPayment();
         }
     }, [showForm]);
+
+    // Validate that a package is selected
+    if (!selectedPackage || !selectedPackage.price) {
+        return (
+            <div className="w-full max-w-2xl mx-auto p-6">
+                <div className="text-center p-6 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <h3 className="text-xl font-bold text-red-400 mb-2">No Package Selected</h3>
+                    <p className="text-red-300 text-sm">
+                        Please select a package before proceeding to payment.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-2xl mx-auto p-6">
