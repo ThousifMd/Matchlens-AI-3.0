@@ -1,17 +1,19 @@
 import * as React from "react";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import DatingPlatformsSection from "@/components/DatingPlatformsSection";
 import { DatingAppContext } from "@/components/DatingAppContext";
 import { StatsSection } from "@/components/StatsSection";
-import { FAQSection } from "@/components/FAQSection";
-import { FinalCTASection } from "@/components/FinalCTASection";
-import { SimpleProcessSection } from "@/components/SimpleProcessSection";
-import CompaniesSection from "@/components/CompaniesSection";
-import { TestimonialsSection } from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import { MobileStickyCTA } from "@/components/MobileStickyCTA";
+
+// Lazy load below-the-fold components
+const DatingPlatformsSection = lazy(() => import("@/components/DatingPlatformsSection"));
+const SimpleProcessSection = lazy(() => import("@/components/SimpleProcessSection").then(module => ({ default: module.SimpleProcessSection })));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection").then(module => ({ default: module.TestimonialsSection })));
+const CompaniesSection = lazy(() => import("@/components/CompaniesSection"));
+const FAQSection = lazy(() => import("@/components/FAQSection").then(module => ({ default: module.FAQSection })));
+const FinalCTASection = lazy(() => import("@/components/FinalCTASection").then(module => ({ default: module.FinalCTASection })));
 
 export default function HomePage() {
   const ctaHref = "/pricing";
@@ -41,23 +43,34 @@ export default function HomePage() {
         <StatsSection />
 
         {/* Simple Process Section */}
-        <SimpleProcessSection />
+        <Suspense fallback={<div className="py-16"></div>}>
+          <SimpleProcessSection />
+        </Suspense>
 
         {/* Dating Platforms Section */}
-        <DatingPlatformsSection />
-
+        <Suspense fallback={<div className="py-16"></div>}>
+          <DatingPlatformsSection />
+        </Suspense>
 
         {/* Testimonials Section */}
-        <TestimonialsSection />
+        <Suspense fallback={<div className="py-16"></div>}>
+          <TestimonialsSection />
+        </Suspense>
 
         {/* Companies Section */}
-        <CompaniesSection />
+        <Suspense fallback={<div className="py-16"></div>}>
+          <CompaniesSection />
+        </Suspense>
 
         {/* FAQ Section */}
-        <FAQSection />
+        <Suspense fallback={<div className="py-16"></div>}>
+          <FAQSection />
+        </Suspense>
 
         {/* Final CTA Section */}
-        <FinalCTASection />
+        <Suspense fallback={<div className="py-16"></div>}>
+          <FinalCTASection />
+        </Suspense>
       </main>
 
       <Footer

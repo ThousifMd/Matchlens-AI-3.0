@@ -57,22 +57,39 @@ export async function uploadFile(
 }
 
 /**
- * Upload multiple files and return their URLs
+ * Upload multiple files in parallel with progress tracking
  */
 export async function uploadFiles(
     files: File[],
     bucket: string,
-    basePath: string
+    basePath: string,
+    onProgress?: (completed: number, total: number) => void
 ): Promise<{ success: boolean; urls?: string[]; errors?: string[] }> {
-    console.log(`📤 Starting batch upload of ${files.length} files to ${bucket}/${basePath}`)
+    console.log(`📤 Starting parallel upload of ${files.length} files to ${bucket}/${basePath}`)
 
+    // Compress images before upload for faster transfer
+    const processedFiles = await Promise.all(
+        files.map(async (file) => {
+            if (file.type.startsWith('image/')) {
+                return await compressImage(file)
+            }
+            return file
+        })
+    )
+
+    let completedCount = 0
     const results = await Promise.all(
-        files.map(async (file, index) => {
+        processedFiles.map(async (file, index) => {
             const sanitizedName = sanitizeFilename(file.name)
             const fileName = `${Date.now()}-${index}-${sanitizedName}`
             const filePath = `${basePath}/${fileName}`
             console.log(`📤 Uploading file ${index + 1}/${files.length}: ${file.name} -> ${sanitizedName}`)
-            return await uploadFile(file, bucket, filePath)
+
+            const result = await uploadFile(file, bucket, filePath)
+            completedCount++
+            onProgress?.(completedCount, files.length)
+
+            return result
         })
     )
 
@@ -94,6 +111,51 @@ export async function uploadFiles(
         urls: successful.map(r => r.url!).filter(Boolean),
         errors: failed.map(r => r.error!).filter(Boolean)
     }
+}
+
+/**
+ * Compress image files to reduce upload time
+ */
+async function compressImage(file: File, quality: number = 0.8): Promise<File> {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
+        const img = new Image()
+
+        img.onload = () => {
+            // Calculate new dimensions (max 1920px width)
+            const maxWidth = 1920
+            const maxHeight = 1920
+            let { width, height } = img
+
+            if (width > maxWidth || height > maxHeight) {
+                const ratio = Math.min(maxWidth / width, maxHeight / height)
+                width *= ratio
+                height *= ratio
+            }
+
+            canvas.width = width
+            canvas.height = height
+
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height)
+
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const compressedFile = new File([blob], file.name, {
+                        type: file.type,
+                        lastModified: Date.now()
+                    })
+                    console.log(`🗜️ Compressed ${file.name}: ${file.size} -> ${compressedFile.size} bytes`)
+                    resolve(compressedFile)
+                } else {
+                    resolve(file) // Fallback to original if compression fails
+                }
+            }, file.type, quality)
+        }
+
+        img.src = URL.createObjectURL(file)
+    })
 }
 
 /**
@@ -190,66 +252,69 @@ export async function completeOnboardingFlow(
             return { success: true, customerId: 'local-' + Date.now() }
         }
 
-        // Step 1: Upload profile photos
-        let photoUrls: string[] = []
-        if (profilePhotos.length > 0) {
-            console.log('📸 Uploading profile photos...', {
-                count: profilePhotos.length,
-                bucket: STORAGE_BUCKETS.PHOTOS,
-                files: profilePhotos.map(f => ({ name: f.name, size: f.size, type: f.type }))
-            })
+        // Step 1 & 2: Upload photos and screenshots in parallel for maximum speed
+        const customerId = `customer-${Date.now()}`
+        console.log('🚀 Starting parallel uploads for faster processing...')
 
-            try {
-                const profilePhotosResult = await uploadFiles(
+        const uploadPromises: Promise<{ success: boolean; urls?: string[]; errors?: string[] }>[] = []
+
+        // Add profile photos upload promise
+        if (profilePhotos.length > 0) {
+            console.log('📸 Queueing profile photos upload...', {
+                count: profilePhotos.length,
+                bucket: STORAGE_BUCKETS.PHOTOS
+            })
+            uploadPromises.push(
+                uploadFiles(
                     profilePhotos,
                     STORAGE_BUCKETS.PHOTOS,
-                    `customer-${Date.now()}`
+                    customerId,
+                    (completed, total) => console.log(`📸 Photos: ${completed}/${total} uploaded`)
                 )
-
-                if (profilePhotosResult.success && profilePhotosResult.urls) {
-                    photoUrls = profilePhotosResult.urls
-                    console.log('✅ Profile photos uploaded successfully:', photoUrls.length, photoUrls)
-                } else {
-                    console.error('❌ Profile photos upload failed:', profilePhotosResult.errors)
-                    // Don't return early, continue with empty photoUrls
-                }
-            } catch (error) {
-                console.error('❌ Profile photos upload exception:', error)
-                // Don't return early, continue with empty photoUrls
-            }
-        } else {
-            console.log('📸 No profile photos to upload')
+            )
         }
 
-        // Step 2: Upload screenshots
-        let screenshotUrls: string[] = []
+        // Add screenshots upload promise
         if (screenshots.length > 0) {
-            console.log('📱 Uploading screenshots...', {
+            console.log('📱 Queueing screenshots upload...', {
                 count: screenshots.length,
-                bucket: STORAGE_BUCKETS.BIO_SCREENSHOTS,
-                files: screenshots.map(f => ({ name: f.name, size: f.size, type: f.type }))
+                bucket: STORAGE_BUCKETS.BIO_SCREENSHOTS
             })
-
-            try {
-                const screenshotsResult = await uploadFiles(
+            uploadPromises.push(
+                uploadFiles(
                     screenshots,
                     STORAGE_BUCKETS.BIO_SCREENSHOTS,
-                    `customer-${Date.now()}`
+                    customerId,
+                    (completed, total) => console.log(`📱 Screenshots: ${completed}/${total} uploaded`)
                 )
+            )
+        }
 
-                if (screenshotsResult.success && screenshotsResult.urls) {
-                    screenshotUrls = screenshotsResult.urls
-                    console.log('✅ Screenshots uploaded successfully:', screenshotUrls.length, screenshotUrls)
-                } else {
-                    console.error('❌ Screenshots upload failed:', screenshotsResult.errors)
-                    // Don't return early, continue with empty screenshotUrls
-                }
-            } catch (error) {
-                console.error('❌ Screenshots upload exception:', error)
-                // Don't return early, continue with empty screenshotUrls
+        // Execute all uploads in parallel
+        const uploadResults = await Promise.all(uploadPromises)
+
+        // Process results
+        let photoUrls: string[] = []
+        let screenshotUrls: string[] = []
+
+        if (profilePhotos.length > 0 && uploadResults[0]) {
+            const photosResult = uploadResults[0]
+            if (photosResult.success && photosResult.urls) {
+                photoUrls = photosResult.urls
+                console.log('✅ Profile photos uploaded successfully:', photoUrls.length)
+            } else {
+                console.error('❌ Profile photos upload failed:', photosResult.errors)
             }
-        } else {
-            console.log('📱 No screenshots to upload')
+        }
+
+        if (screenshots.length > 0) {
+            const screenshotsResult = uploadResults[profilePhotos.length > 0 ? 1 : 0]
+            if (screenshotsResult?.success && screenshotsResult.urls) {
+                screenshotUrls = screenshotsResult.urls
+                console.log('✅ Screenshots uploaded successfully:', screenshotUrls.length)
+            } else {
+                console.error('❌ Screenshots upload failed:', screenshotsResult?.errors)
+            }
         }
 
         // Step 3: Store onboarding data with image URLs

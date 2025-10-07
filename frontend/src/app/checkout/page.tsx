@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePackage } from "@/contexts/PackageContext";
-import SimplePayPalCheckout from "@/components/SimplePayPalCheckout";
 import { sendConfirmationEmail, getExpectedDelivery } from "@/lib/email";
+
+// Lazy load the PayPal checkout component
+const SimplePayPalCheckout = lazy(() => import("@/components/SimplePayPalCheckout"));
 // Temporarily disabled Clerk - add your real keys to .env.local to enable
 // import { useAuth } from '@clerk/nextjs';
 
@@ -201,12 +203,19 @@ function PaymentForm({ selectedPackage, onPaymentSuccess, showNotification, onbo
 
   return (
     <div className="space-y-6">
-      <SimplePayPalCheckout
-        selectedPackage={selectedPackage}
-        showNotification={showNotification}
-        onPaymentSuccess={onPaymentSuccess}
-        onboardingFormData={onboardingFormData}
-      />
+      <Suspense fallback={
+        <div className="flex items-center justify-center p-6">
+          <Loader2 className="w-6 h-6 animate-spin text-[#d4ae36]" />
+          <span className="ml-2 text-white">Loading payment options...</span>
+        </div>
+      }>
+        <SimplePayPalCheckout
+          selectedPackage={selectedPackage}
+          showNotification={showNotification}
+          onPaymentSuccess={onPaymentSuccess}
+          onboardingFormData={onboardingFormData}
+        />
+      </Suspense>
 
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-md">

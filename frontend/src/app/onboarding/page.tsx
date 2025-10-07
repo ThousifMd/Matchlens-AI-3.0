@@ -183,6 +183,8 @@ function OnboardingContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ photos: 0, screenshots: 0, total: 0 });
+  const [submissionStatus, setSubmissionStatus] = useState('');
   const [dragActive, setDragActive] = useState(false);
   const [screenshotDragActive, setScreenshotDragActive] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -512,6 +514,10 @@ function OnboardingContent() {
             screenshots: formData.screenshots.length
           });
         }
+
+        // Show progress updates
+        setSubmissionStatus('Compressing and uploading photos...');
+        setUploadProgress({ photos: 0, screenshots: 0, total: 0 });
 
         const result = await completeOnboardingFlow(
           onboardingData,
@@ -1283,13 +1289,13 @@ function OnboardingContent() {
                     {confidentPlaceOptions.map((option) => (
                       <div
                         key={option.value}
-                        className={`p-3 rounded-lg border-2 cursor-pointer transition-all text-center ${formData.confidentPlace === option.value
+                        className={`px-4 py-4 rounded-lg border-2 cursor-pointer transition-all text-center min-h-[60px] flex items-center justify-center ${formData.confidentPlace === option.value
                           ? 'border-[#d4ae36] bg-[#d4ae36]/10'
                           : 'border-white/20 hover:border-white/40'
                           }`}
                         onClick={() => setFormData(prev => ({ ...prev, confidentPlace: option.value }))}
                       >
-                        <span className="text-white font-medium">{option.label}</span>
+                        <span className="text-white font-medium text-sm leading-tight px-2">{option.label}</span>
                       </div>
                     ))}
                   </div>
@@ -1402,9 +1408,9 @@ function OnboardingContent() {
                       console.log('Photo guidelines button clicked!');
                       setShowGuidelines(true);
                     }}
-                    className="w-full h-12 bg-[#FFD700] text-black hover:bg-[#FFA500] font-bold text-base border-0 shadow-lg transition-all duration-200"
+                    className="w-full h-12 bg-[#FFD700] text-black hover:bg-[#FFA500] font-bold text-sm sm:text-base border-0 shadow-lg transition-all duration-200 px-4"
                   >
-                    📸 Click here to get Photo Quality Tips
+                    <span className="truncate">📸 Click here to get Photo Quality Tips</span>
                   </Button>
                   <p className="text-center text-xs text-white/70 mt-2">
                     Get expert tips for better photos before uploading
@@ -1609,7 +1615,7 @@ function OnboardingContent() {
                       <Button
                         key={interest.value}
                         variant={isSelected ? "default" : "outline"}
-                        className={`h-20 flex flex-col items-center gap-2 p-3 bg-white/5 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 ease-out ${isSelected
+                        className={`h-20 flex flex-col items-center gap-2 px-2 py-3 bg-white/5 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 ease-out ${isSelected
                           ? "border-2 border-[#d4ae36] bg-[#d4ae36]/20 shadow-lg shadow-[#d4ae36]/30"
                           : isDisabled
                             ? "opacity-50 cursor-not-allowed"
@@ -1618,8 +1624,8 @@ function OnboardingContent() {
                         onClick={() => !isDisabled && handleInterestToggle(interest.value)}
                         disabled={isDisabled}
                       >
-                        <IconComponent className="h-5 w-5 flex-shrink-0" />
-                        <span className="text-xs text-center leading-tight">
+                        <IconComponent className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-xs text-center leading-tight px-1">
                           {interest.label}
                         </span>
                       </Button>
