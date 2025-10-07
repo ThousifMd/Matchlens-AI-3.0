@@ -253,7 +253,7 @@ export async function completeOnboardingFlow(
         }
 
         // Step 1 & 2: Upload photos and screenshots in parallel for maximum speed
-        const customerId = `customer-${Date.now()}`
+        const uploadId = `customer-${Date.now()}`
         console.log('🚀 Starting parallel uploads for faster processing...')
 
         const uploadPromises: Promise<{ success: boolean; urls?: string[]; errors?: string[] }>[] = []
@@ -268,7 +268,7 @@ export async function completeOnboardingFlow(
                 uploadFiles(
                     profilePhotos,
                     STORAGE_BUCKETS.PHOTOS,
-                    customerId,
+                    uploadId,
                     (completed, total) => console.log(`📸 Photos: ${completed}/${total} uploaded`)
                 )
             )
@@ -284,7 +284,7 @@ export async function completeOnboardingFlow(
                 uploadFiles(
                     screenshots,
                     STORAGE_BUCKETS.BIO_SCREENSHOTS,
-                    customerId,
+                    uploadId,
                     (completed, total) => console.log(`📱 Screenshots: ${completed}/${total} uploaded`)
                 )
             )
